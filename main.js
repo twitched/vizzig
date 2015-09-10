@@ -11,6 +11,9 @@ height = 200 - margin.top - margin.bottom;
 //z score for determining width of graph
 z_limit = 4;
 
+//precision for numbers
+precision = 4;
+
 var x = d3.scale.linear()
 	.range([0, width]);
 
@@ -91,7 +94,7 @@ function move_threshold(d) {
 		.attr("cx", x(threshold))
 		.attr("cy", height / 2)
 	
-	d3.select("#thresholdbox").attr("value", threshold);
+	d3.select("#thresholdbox").attr("value", threshold.toPrecision(precision));
 	
 	update_rates(threshold);
 }
@@ -111,8 +114,8 @@ function move_control(d){
 		.attr("cx", d3.event.x);
 	
 	//update the means
-	d3.select("#mean1box").attr("value", d3.select("#curve1control").datum().x);
-	d3.select("#mean2box").attr("value", d3.select("#curve2control").datum().x);
+	d3.select("#mean1box").attr("value", d3.select("#curve1control").datum().x.toPrecision(precision));
+	d3.select("#mean2box").attr("value", d3.select("#curve2control").datum().x.toPrecision(precision));
 }
 
 //change the curves 
@@ -205,10 +208,10 @@ function update_rates(threshold){
 	fpr = 1 - gaussian_cdf(threshold, m1, s1);
 	fnr = gaussian_cdf(threshold, m2, s2);
 	
-	d3.select("#tpr").html(tpr);
-	d3.select("#tnr").html(tnr);
-	d3.select("#fpr").html(fpr);
-	d3.select("#fnr").html(fnr);
+	d3.select("#tpr").html(tpr.toPrecision(4));
+	d3.select("#tnr").html(tnr.toPrecision(4));
+	d3.select("#fpr").html(fpr.toPrecision(4));
+	d3.select("#fnr").html(fnr.toPrecision(4));
 }
 
 //make the x axis min and max scale with the data
