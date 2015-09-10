@@ -1,0 +1,59 @@
+body {
+    font: 10pt sans-serif;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.line {
+    fill: none;
+    stroke-width: 1.5px;	
+}
+
+.curve1 {
+    stroke: steelblue;
+}
+
+.curve2 {
+    stroke: crimson;
+}
+
+.curve1-filled {
+	fill: lightsteelblue;
+}
+
+.curve2-filled {
+	fill: #F56991;
+}
+
+.input {
+	font-size: 14pt;
+	margin: 5px;
+}
+
+p.input {
+	text-align: center;
+}
+
+label {
+	display: inline-block; 
+	text-align: left;
+}
+
+.threshold {
+	stroke: purple;
+}
+
+.control {
+	fill: white;
+	stroke: #000;
+	stroke-width: 2px;
+}
+
+#thresholdcontrol {
+	cursor: ew-resize;	
+}

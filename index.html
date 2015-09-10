@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Normal Plot</title>
+    <meta name="description" content="">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+	<link rel="stylesheet" href="style.css" type="text/css" charset="utf-8"></link>
+</head>
+
+<body>
+
+<p class="input">
+	<table>
+		<tr>
+			<td>
+				<div class="input" id="input1">
+					<p>
+					  <label class="input" for="mean1box">Mean: </label>
+					  <input class="input inputbox" type="text" id="mean1box" size="5" value="0"/>
+					</p>
+					<p>
+					  <label class="input" for="sigma1box">Standard deviation:</label>
+					  <input class="input inputbox" type="text" id="sigma1box" size="5" value="1"/>
+					</p>
+				</div>
+			</td>
+			<td>
+				<div class="input" id="input2">
+					<p>
+					  <label class="input" for="mean2box">Mean: </label>
+					  <input class="input inputbox" type="text" id="mean2box" size="5" value="2"/>
+					</p>
+					<p>
+					  <label class="input" for="sigma2box">Standard deviation:</label>
+					  <input class="input inputbox" type="text" id="sigma2box" size="5" value="1"/>
+					</p>
+				</div>
+			</td>
+			<td>
+				<div class="input" id="input-options">
+				  <input class="input inputbox" type="checkbox" id="axisscalecheck" value="lock" checked>Scale axes</input>
+				</div>
+				<div class="input" id="input-options">
+				  <label class="input" for="thresholdbox">Threshold:</label>
+				  <input class="input inputbox" type="text" id="thresholdbox" size="5" value="1"/>
+				</div>
+			</td>
+		</tr>
+	</table>
+</p>
+<p>
+	<table>
+		<tr>
+			<td>		    
+				<div class="graph normalplot" id="graph1">
+					<svg class="normalplot">
+						<g class="graph-container">
+							<g class="x axis"></g>
+							<g class="y axis"></g>
+							<path class="line curve curve1"></path>
+							<path class="line curve curve2"></path>
+							<line class="line threshold"></line>
+							<circle id="thresholdcontrol" class="control threshold"></circle>
+							<circle id="curve1control" class="curvecontrol control"></circle>
+							<circle id="curve2control" class="curvecontrol control"></circle>
+						</g>
+					</svg>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="graph normalplot" id="graph2">
+					<svg class="normalplot">
+						<g class="graph-container">
+							<g class="x axis"></g>
+							<g class="y axis"></g>
+							<path class="curve curve2-filled"></path>
+							<path class="curve curve1-filled"></path>
+							<path class="line curve curve1"></path>
+							<path class="line curve curve2"></path>
+							<line class="line threshold"></line>
+						</g>
+					</svg>		
+				</div>
+			</td>
+			<td>
+				<table>
+					<tr>
+						<td>&nbsp;</td>
+						<td>blue</td>
+						<td>red</td>
+					</tr>
+					<tr>
+						<td>classified blue</td>
+						<td>TP: <span id=tpr></span></td>
+						<td>FP: <span id=fpr></span></td>
+					</tr>
+					<tr>
+						<td>classified red</td>
+						<td>FN: <span id=fnr></span></td>
+						<td>TN: <span id=tnr></span></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div class="graph normalplot" id="graph3">
+					<svg class="normalplot">
+						<g class="graph-container">
+							<g class="x axis"></g>
+							<g class="y axis"></g>
+							<path class="curve curve1-filled"></path>
+							<path class="curve curve2-filled"></path>
+							<path class="line curve curve2"></path>
+							<path class="line curve curve1"></path>
+							<line class="line threshold"></line>		
+						</g>
+					</svg>
+				</div>
+			</td>
+		</tr>
+</p>
+<script type="text/javascript" src="main.js"></script>
+
+</body>
+
+</html>
