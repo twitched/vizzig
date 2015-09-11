@@ -57,3 +57,12 @@ label {
 #thresholdcontrol {
 	cursor: ew-resize;	
 }
+
+.border {
+	border: 1px solid;
+	padding: .5em;
+}
+
+.confusion-matrix {
+	border-collapse: collapse;
+}
