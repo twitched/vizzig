@@ -2,6 +2,10 @@ body {
     font: 10pt sans-serif;
 }
 
+#col1 {
+	float:left;
+}
+
 .axis path,
 .axis line {
     fill: none;

@@ -51,82 +51,71 @@
 		</tr>
 	</table>
 </p>
-<p>
-	<table>
-		<tr>
-			<td>		    
-				<div class="graph normalplot" id="graph1">
-					<svg class="normalplot">
-						<g class="graph-container">
-							<g class="x axis"></g>
-							<g class="y axis"></g>
-							<path class="line curve curve1"></path>
-							<path class="line curve curve2"></path>
-							<line class="line threshold"></line>
-							<circle id="thresholdcontrol" class="control threshold"></circle>
-							<circle id="curve1control" class="curvecontrol control"></circle>
-							<circle id="curve2control" class="curvecontrol control"></circle>
-						</g>
-					</svg>
-				</div>
-			</td>
+<div id="col1">
+  <p>
+	<div class="graph normalplot" id="graph1">
+		<svg class="normalplot">
+			<g class="graph-container">
+				<g class="x axis"></g>
+				<g class="y axis"></g>
+				<path class="line curve curve1"></path>
+				<path class="line curve curve2"></path>
+				<line class="line threshold"></line>
+				<circle id="thresholdcontrol" class="control threshold"></circle>
+				<circle id="curve1control" class="curvecontrol control"></circle>
+				<circle id="curve2control" class="curvecontrol control"></circle>
+			</g>
+		</svg>
+	</div>
+	<div class="graph normalplot" id="graph2">
+		<svg class="normalplot">
+			<g class="graph-container">
+				<g class="x axis"></g>
+				<g class="y axis"></g>
+				<path class="curve curve2-filled"></path>
+				<path class="line curve curve2"></path>
+				<path class="curve curve1-filled"></path>
+				<path class="line curve curve1"></path>
+				<line class="line threshold"></line>
+			</g>
+		</svg>		
+	</div>
+	<div class="graph normalplot" id="graph3">
+		<svg class="normalplot">
+			<g class="graph-container">
+				<g class="x axis"></g>
+				<g class="y axis"></g>
+				<path class="curve curve1-filled"></path>
+				<path class="line curve curve1"></path>
+				<path class="curve curve2-filled"></path>
+				<path class="line curve curve2"></path>
+				<line class="line threshold"></line>		
+			</g>
+		</svg>
+	</div>
+</div>
+<div id="col2">
+	<table class="confusion-matrix">
+		<thead>
+			<tr class="no-border">
+				<td>&nbsp;</td>
+				<td class="border">noise + signal</td>
+				<td class="border">noise</td>
+			</tr>
+		</thead>
+		<tr class="border">
+			<td class="border">classified signal</td>
+			<td class="border">TP: <span id=tpr></span></td>
+			<td class="border">FP: <span id=fpr></span></td>
 		</tr>
-		<tr>
-			<td>
-				<div class="graph normalplot" id="graph2">
-					<svg class="normalplot">
-						<g class="graph-container">
-							<g class="x axis"></g>
-							<g class="y axis"></g>
-							<path class="curve curve2-filled"></path>
-							<path class="line curve curve2"></path>
-							<path class="curve curve1-filled"></path>
-							<path class="line curve curve1"></path>
-							<line class="line threshold"></line>
-						</g>
-					</svg>		
-				</div>
-			</td>
-			<td>
-				<table class="confusion-matrix">
-					<thead>
-						<tr class="no-border">
-							<td>&nbsp;</td>
-							<td class="border">noise + signal</td>
-							<td class="border">noise</td>
-						</tr>
-					</thead>
-					<tr class="border">
-						<td class="border">classified signal</td>
-						<td class="border">TP: <span id=tpr></span></td>
-						<td class="border">FP: <span id=fpr></span></td>
-					</tr>
-					<tr class="border">
-						<td class="border">classified no signal</td>
-						<td class="border">FN: <span id=fnr></span></td>
-						<td class="border">TN: <span id=tnr></span></td>
-					</tr>
-				</table>
-			</td>
+		<tr class="border">
+			<td class="border">classified no signal</td>
+			<td class="border">FN: <span id=fnr></span></td>
+			<td class="border">TN: <span id=tnr></span></td>
 		</tr>
-		<tr>
-			<td>
-				<div class="graph normalplot" id="graph3">
-					<svg class="normalplot">
-						<g class="graph-container">
-							<g class="x axis"></g>
-							<g class="y axis"></g>
-							<path class="curve curve1-filled"></path>
-							<path class="line curve curve1"></path>
-							<path class="curve curve2-filled"></path>
-							<path class="line curve curve2"></path>
-							<line class="line threshold"></line>		
-						</g>
-					</svg>
-				</div>
-			</td>
-		</tr>
-</p>
+	</table>
+  </p>
+</div>
 <script type="text/javascript" src="main.js"></script>
 
 </body>
