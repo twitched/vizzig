@@ -45,6 +45,27 @@ d3.selectAll(".y.axis")
 d3.selectAll(".control")
 	.attr("r", "5")
 
+//function for creating lines with data in the form of q, p
+var line = d3.svg.line()
+    .x(function(d) {
+        return x(d.q);
+    })
+    .y(function(d) {
+        return y(d.p);
+    });	
+
+//function for creating filled areas with data in the form of q, p
+var fill = d3.svg.area()
+    .x(function(d) {
+        return x(d.q);
+    })
+    .y1(function(d) {
+        return y(d.p);
+    })
+    .y0(function(d) {
+ 		return y(0);
+    });
+
 update(x, y);
 
 //attach event	
@@ -68,6 +89,7 @@ function update_threshold(){
 	threshold = Number(d3.select("#thresholdbox").property("value"));
 	d3.selectAll(".threshold")
 		.datum(threshold)
+		.transition()
 		.attr("x1", x(threshold))
 		.attr("y1", 0 - margin.top)
 		.attr("x2", x(threshold))
@@ -75,10 +97,11 @@ function update_threshold(){
 	
 	d3.select("#thresholdcontrol")
 		.datum(threshold)
+		.transition()
 		.attr("cx", x(threshold))
 		.attr("cy", height / 2)
 	
-	update_rates(threshold);
+	update_rates(threshold, transition=true);
 }
 
 //handle threshold drag event along x axis
@@ -142,31 +165,12 @@ function update(x, y){
 			update_x_axis(m1, s1, m2, s2, x);		
 		}
 
-		data1 = get_data(m1, s1, x);
-		data2 = get_data(m2, s2, x);
+		data1 = get_data(m1, s1, x, 0, width);
+		data2 = get_data(m2, s2, x, 0, width);
 
 		if(d3.select("#axisscalecheck").property("checked")){
 			update_y_axis(data1.concat(data2), y);
 		}
-
-		var line = d3.svg.line()
-		    .x(function(d) {
-		        return x(d.q);
-		    })
-		    .y(function(d) {
-		        return y(d.p);
-		    });	
-
-		var fill = d3.svg.area()
-		    .x(function(d) {
-		        return x(d.q);
-		    })
-		    .y1(function(d) {
-		        return y(d.p);
-		    })
-		    .y0(function(d) {
-	     		return y(0);
- 		    });
 
 		d3.selectAll(".curve1")
 			.datum(data1)
@@ -205,7 +209,7 @@ function update(x, y){
 }
 
 //update the confustion matrix
-function update_rates(threshold){
+function update_rates(threshold, transition){
 	m1 = Number(d3.select("#mean1box").property("value"));
 	s1 = Number(d3.select("#sigma1box").property("value"));
 	m2 = Number(d3.select("#mean2box").property("value"));
@@ -220,6 +224,34 @@ function update_rates(threshold){
 	d3.select("#tnr").html(tnr.toPrecision(4));
 	d3.select("#fpr").html(fpr.toPrecision(4));
 	d3.select("#fnr").html(fnr.toPrecision(4));
+	
+	update_false_areas(x, threshold, m1, s1, m2, s2, transition);
+}
+
+//update the areas that show the errors
+function update_false_areas(x_scale, threshold, m1, s1, m2, s2, transition){
+	false_positive_data = get_data(m1, s1, x_scale, x(threshold), width);
+	false_negative_data = get_data(m2, s2, x_scale, 0, x(threshold));
+	
+	if(transition){
+		d3.selectAll(".false-positive-curve")
+			.datum(false_positive_data)
+			.transition()
+			.attr("d", fill);
+
+		d3.selectAll(".false-negative-curve")
+			.datum(false_negative_data)
+			.transition()
+			.attr("d", fill);
+	} else {
+		d3.selectAll(".false-positive-curve")
+			.datum(false_positive_data)
+			.attr("d", fill);
+
+		d3.selectAll(".false-negative-curve")
+			.datum(false_negative_data)
+			.attr("d", fill);
+	}
 }
 
 //make the x axis min and max scale with the data
@@ -240,11 +272,11 @@ function update_y_axis(data, y){
 
 //given a mean, sigma, and an x scale, return a an array 
 //representing the y points of a normal distribution 
-function get_data(mean, sigma, x){
+function get_data(mean, sigma, x, startx, endx){
 	data = []; //erase current data
 
 	//populate the data
-	for (i = 0; i < width; i++) {
+	for (i = startx; i < endx; i++) {
 		q = x.invert(i);
 	    p = gaussian_pdf(q, mean, sigma); // calc prob of each point
 	    el = {

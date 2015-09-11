@@ -34,6 +34,15 @@ body {
 	fill: #F56991;
 }
 
+.false-positive-curve {
+	fill: darkorchid;
+}
+
+.false-negative-curve {
+	fill: deeppink;
+}
+
+
 .input {
 	font-size: 14pt;
 	margin: 5px;
