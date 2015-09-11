@@ -110,12 +110,20 @@ d3.selectAll(".curvecontrol")
 //move the control
 function move_control(d){
 	d.x = x.invert(d3.event.x);
+	d.y = y.invert(d3.event.y)
 	d3.select(this)
-		.attr("cx", d3.event.x);
+		.attr("cx", d3.event.x)
+		.attr("cy", d3.event.y);
 	
 	//update the means
 	d3.select("#mean1box").attr("value", d3.select("#curve1control").datum().x.toPrecision(precision));
 	d3.select("#mean2box").attr("value", d3.select("#curve2control").datum().x.toPrecision(precision));
+	d3.select("#sigma1box").attr("value", 
+		gaussian_sigma(d3.select("#curve1control")
+		.datum().y.toPrecision(precision)));
+	d3.select("#sigma2box").attr("value", 
+		gaussian_sigma(d3.select("#curve2control")
+		.datum().y.toPrecision(precision)));
 }
 
 //change the curves 
@@ -180,19 +188,19 @@ function update(x, y){
 			.transition()
 			.attr("d", fill);
 		
-		control_y1 = y(gaussian_pdf(m1, m1, s1));
+		control_y1 = gaussian_pdf(m1, m1, s1);
 		d3.select("#curve1control")
 			.datum({x: m1, y: control_y1})
 			.attr("cx", x(m1))
-			.attr("cy", control_y1);
+			.attr("cy", y(control_y1));
 
-		control_y2 = y(gaussian_pdf(m2, m2, s2));
+		control_y2 = gaussian_pdf(m2, m2, s2);
 		d3.select("#curve2control")
 			.datum({x: m2, y: control_y2})
 			.attr("cx", x(m2))
-			.attr("cy", control_y2);
+			.attr("cy", y(control_y2));
 			
-			update_threshold();
+		update_threshold();
 	}
 }
 
@@ -256,6 +264,11 @@ function gaussian_pdf(x, mean, sigma) {
     x = (x - mean) / sigma;
     return gaussianConstant * Math.exp(-.5 * x * x) / sigma;
 };
+
+//return sigma (standard deviation) given the probability at the mean
+function gaussian_sigma(p){
+	return 1 / (p * Math.sqrt(2 * Math.PI))
+}
 
 //taken from Jason Davies science library
 // https://github.com/jasondavies/science.js/blob/master/src/stats/distribution/gaussian.js
