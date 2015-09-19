@@ -79,3 +79,9 @@ label {
 .confusion-matrix {
 	border-collapse: collapse;
 }
+
+.roc-diagonal {
+    fill: none;
+    stroke-width: 1px;	
+	stroke: black;
+}
