@@ -84,8 +84,8 @@ var threshold_drag = d3.behavior.drag()
 d3.selectAll(".threshold")
 	.call(threshold_drag);
 
-//move the threshold
-function update_threshold(){
+//update the threshold
+function update_threshold(duration){
 	threshold = Number(d3.select("#thresholdbox").property("value"));
 	d3.selectAll(".threshold")
 		.datum(threshold)
@@ -93,15 +93,17 @@ function update_threshold(){
 		.attr("x1", x(threshold))
 		.attr("y1", 0 - margin.top)
 		.attr("x2", x(threshold))
-		.attr("y2", height + margin.bottom);
+		.attr("y2", height + margin.bottom)
+		.duration(duration);
 	
 	d3.select("#thresholdcontrol")
 		.datum(threshold)
 		.transition()
 		.attr("cx", x(threshold))
 		.attr("cy", height / 2)
+		.duration(duration);
 	
-	update_rates(threshold, transition=true);
+	update_rates(threshold, duration);
 }
 
 //handle threshold drag event along x axis
@@ -119,22 +121,27 @@ function move_threshold(d) {
 	
 	d3.select("#thresholdbox").attr("value", threshold.toPrecision(precision));
 	
-	update_rates(threshold);
+	update_rates(threshold, 0);
 }
 
 //make the curve controls draggable
 var control_drag = d3.behavior.drag()
-	.on("drag", move_control)
+	.on("drag", function(d) {
+		move_control(this, d);
+		ms = get_means_and_sigmas();
+		update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
+		update_threshold(0)
+	})
 	.on("dragend", function() {update(x,y)});
 
 d3.selectAll(".curvecontrol")
 	.call(control_drag);
 
 //move the control
-function move_control(d){
+function move_control(c, d){
 	d.x = x.invert(d3.event.x);
 	d.y = y.invert(d3.event.y)
-	d3.select(this)
+	d3.select(c)
 		.attr("cx", d3.event.x)
 		.attr("cy", d3.event.y);
 	
@@ -149,12 +156,26 @@ function move_control(d){
 		.datum().y.toPrecision(precision)));
 }
 
-//change the curves 
+//update the curves, controls, and threshold
 function update(x, y){
-	m1 = Number(d3.select("#mean1box").property("value"));
-	s1 = Number(d3.select("#sigma1box").property("value"));
-	m2 = Number(d3.select("#mean2box").property("value"));
-	s2 = Number(d3.select("#sigma2box").property("value"));
+	ms = get_means_and_sigmas();
+	update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
+	update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
+	update_threshold(250);
+}
+
+//get the means and sigmas from their input boxes
+function get_means_and_sigmas(){
+	return {
+		m1:Number(d3.select("#mean1box").property("value")),
+		s1:Number(d3.select("#sigma1box").property("value")),
+		m2:Number(d3.select("#mean2box").property("value")),
+		s2:Number(d3.select("#sigma2box").property("value")),
+	}
+}
+//update the curves 
+function update_curves(m1, s1, m2, s2, x, y){
+
 	if(!isNaN(m1)
 			&& !isNaN(m2)
 			&& !isNaN(s1) 
@@ -174,42 +195,39 @@ function update(x, y){
 
 		d3.selectAll(".curve1")
 			.datum(data1)
-			.transition()
 			.attr("d", line);
 
 		d3.selectAll(".curve2")
 			.datum(data2)
-			.transition()
 			.attr("d", line);
 			
 		d3.selectAll(".curve1-filled")
 			.datum(data1)
-			.transition()
 			.attr("d", fill);
 
 		d3.selectAll(".curve2-filled")
 			.datum(data2)
-			.transition()
 			.attr("d", fill);
-		
-		control_y1 = gaussian_pdf(m1, m1, s1);
-		d3.select("#curve1control")
-			.datum({x: m1, y: control_y1})
-			.attr("cx", x(m1))
-			.attr("cy", y(control_y1));
-
-		control_y2 = gaussian_pdf(m2, m2, s2);
-		d3.select("#curve2control")
-			.datum({x: m2, y: control_y2})
-			.attr("cx", x(m2))
-			.attr("cy", y(control_y2));
-			
-		update_threshold();
 	}
 }
 
+//update the location of the controls
+function update_controls(m1, s1, m2, s2, x, y){
+	control_y1 = gaussian_pdf(m1, m1, s1);
+	d3.select("#curve1control")
+		.datum({x: m1, y: control_y1})
+		.attr("cx", x(m1))
+		.attr("cy", y(control_y1));
+
+	control_y2 = gaussian_pdf(m2, m2, s2);
+	d3.select("#curve2control")
+		.datum({x: m2, y: control_y2})
+		.attr("cx", x(m2))
+		.attr("cy", y(control_y2));
+}
+
 //update the confustion matrix
-function update_rates(threshold, transition){
+function update_rates(threshold, duration){
 	m1 = Number(d3.select("#mean1box").property("value"));
 	s1 = Number(d3.select("#sigma1box").property("value"));
 	m2 = Number(d3.select("#mean2box").property("value"));
@@ -225,33 +243,26 @@ function update_rates(threshold, transition){
 	d3.select("#fpr").html(fpr.toPrecision(4));
 	d3.select("#fnr").html(fnr.toPrecision(4));
 	
-	update_false_areas(x, threshold, m1, s1, m2, s2, transition);
+	update_false_areas(x, threshold, m1, s1, m2, s2, duration);
 }
 
 //update the areas that show the errors
-function update_false_areas(x_scale, threshold, m1, s1, m2, s2, transition){
+function update_false_areas(x_scale, threshold, m1, s1, m2, s2, duration){
 	false_positive_data = get_data(m1, s1, x_scale, x(threshold), width);
 	false_negative_data = get_data(m2, s2, x_scale, 0, x(threshold));
 	
-	if(transition){
+
 		d3.selectAll(".false-positive-curve")
 			.datum(false_positive_data)
 			.transition()
-			.attr("d", fill);
+			.attr("d", fill)
+			.duration(duration);
 
 		d3.selectAll(".false-negative-curve")
 			.datum(false_negative_data)
 			.transition()
-			.attr("d", fill);
-	} else {
-		d3.selectAll(".false-positive-curve")
-			.datum(false_positive_data)
-			.attr("d", fill);
-
-		d3.selectAll(".false-negative-curve")
-			.datum(false_negative_data)
-			.attr("d", fill);
-	}
+			.attr("d", fill)
+			.duration(duration);
 }
 
 //make the x axis min and max scale with the data
