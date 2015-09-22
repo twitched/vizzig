@@ -85,3 +85,9 @@ label {
     stroke-width: 1px;	
 	stroke: black;
 }
+
+.roc-curve {
+    fill: none;
+    stroke-width: 1px;	
+	stroke: black;
+}

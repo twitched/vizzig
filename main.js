@@ -44,6 +44,73 @@ d3.selectAll(".y.axis")
 	
 d3.selectAll(".control")
 	.attr("r", "5")
+	
+var rmargin = {
+        top: 20,
+        right: 20,
+        bottom: 50,
+        left: 70
+    },
+rwidth = 420 - rmargin.left - rmargin.right,
+rheight = 400 - rmargin.top - rmargin.bottom;
+
+var rx = d3.scale.linear()
+	.domain([0, 1])
+	.range([0, rwidth]);
+
+var ry = d3.scale.linear()
+	.domain([0,1])
+    .range([rheight, 0]);
+
+var roc_scale = d3.scale.linear()
+	.domain(x.domain())
+	.range([0, rwidth])
+
+var rxAxis = d3.svg.axis()
+    .scale(rx)
+    .orient("bottom");
+
+var ryAxis = d3.svg.axis()
+    .scale(ry)
+    .orient("left");
+
+var topAxis = d3.svg.axis()
+	.scale(rx)
+	.ticks(0)
+	.orient("top");
+
+var rightAxis = d3.svg.axis()
+	.scale(ry)
+	.ticks(0)
+	.orient("right");
+
+d3.selectAll(".roc-svg")
+    .attr("width", rwidth + rmargin.left + rmargin.right)
+    .attr("height", rheight + rmargin.top + rmargin.bottom)
+
+d3.selectAll(".roc-container")
+ 	.attr("transform", "translate(" + rmargin.left + "," + rmargin.top + ")")	
+
+d3.selectAll(".roc-x-axis")
+   	.attr("transform", "translate(0," + rheight + ")")
+   	.call(rxAxis);
+
+d3.selectAll(".roc-y-axis")
+    .call(ryAxis);
+
+d3.selectAll(".roc-top-axis")
+	.call(topAxis);
+
+d3.selectAll(".roc-right-axis")
+	.attr("transform", "translate(" + rwidth + ",0)")
+	.call(rightAxis);
+
+d3.selectAll(".roc-diagonal")
+	.attr("x1", 0)
+	.attr("y1", rheight)
+	.attr("x2", rwidth)
+	.attr("y2", 0);
+
 
 //function for creating lines with data in the form of q, p
 var line = d3.svg.line()
@@ -65,6 +132,14 @@ var fill = d3.svg.area()
     .y0(function(d) {
  		return y(0);
     });
+	
+var roc_line = d3.svg.line()
+    .x(function(d) {
+        return rx(d.fpr);
+    })
+    .y(function(d) {
+		return ry(d.tpr);
+    });	
 
 update(x, y);
 
@@ -130,7 +205,8 @@ var control_drag = d3.behavior.drag()
 		move_control(this, d);
 		ms = get_means_and_sigmas();
 		update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
-		update_threshold(0)
+		update_threshold(0);
+		update_roc();
 	})
 	.on("dragend", function() {update(x,y)});
 
@@ -162,6 +238,7 @@ function update(x, y){
 	update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
 	update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
 	update_threshold(250);
+	update_roc();
 }
 
 //get the means and sigmas from their input boxes
@@ -228,22 +305,16 @@ function update_controls(m1, s1, m2, s2, x, y){
 
 //update the confustion matrix
 function update_rates(threshold, duration){
-	m1 = Number(d3.select("#mean1box").property("value"));
-	s1 = Number(d3.select("#sigma1box").property("value"));
-	m2 = Number(d3.select("#mean2box").property("value"));
-	s2 = Number(d3.select("#sigma2box").property("value"));
+	ms = get_means_and_sigmas()
 	
-	tpr = 1 - gaussian_cdf(threshold, m2, s2);
-	tnr = gaussian_cdf(threshold, m1, s1);
-	fpr = 1 - gaussian_cdf(threshold, m1, s1);
-	fnr = gaussian_cdf(threshold, m2, s2);
+	r = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold)
 	
-	d3.select("#tpr").html(tpr.toPrecision(4));
-	d3.select("#tnr").html(tnr.toPrecision(4));
-	d3.select("#fpr").html(fpr.toPrecision(4));
-	d3.select("#fnr").html(fnr.toPrecision(4));
+	d3.select("#tpr").html(r.tpr.toPrecision(4));
+	d3.select("#tnr").html(r.tnr.toPrecision(4));
+	d3.select("#fpr").html(r.fpr.toPrecision(4));
+	d3.select("#fnr").html(r.fnr.toPrecision(4));
 	
-	update_false_areas(x, threshold, m1, s1, m2, s2, duration);
+	update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration);
 }
 
 //update the areas that show the errors
@@ -269,6 +340,7 @@ function update_false_areas(x_scale, threshold, m1, s1, m2, s2, duration){
 //needed before data generation
 function update_x_axis(m1, s1, m2, s2, x){
 	x.domain(d3.extent([m1 - (z_limit * s1), m2 - (z_limit * s2), m1 + (z_limit * s1), m2 + (z_limit * s2)]));
+	roc_scale.domain(x.domain()); //update the roc scale, too
 	d3.selectAll(".x").transition().call(xAxis);		
 }
 
@@ -296,8 +368,19 @@ function get_data(mean, sigma, x, startx, endx){
 	    }
 		//console.log(el);
 	    data.push(el);
-	};
+	}
 	return data 	
+}
+
+function get_rates(m1, s1, m2, s2, threshold){
+	fnr = gaussian_cdf(threshold, m2, s2);
+	tnr = gaussian_cdf(threshold, m1, s1);
+	return {
+		"fnr":fnr,
+		"tpr":1 - fnr,
+		"tnr":tnr,
+		"fpr":1 - tnr
+	}
 }
 
 //taken from Jason Davies science library
@@ -342,3 +425,31 @@ function erf(x) {
     1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1)
     * t * Math.exp(-x * x));
 };
+
+//////////////////////////// ROC ////////////////////////////////
+
+//function for creating lines with data in the form of q, p	
+function update_roc(){
+	data = get_roc_data();
+	
+	d3.selectAll(".roc-curve")
+		.datum(data)
+		.attr("d", roc_line);
+}	
+	
+function get_roc_data(){
+	data = [];
+
+	ms = get_means_and_sigmas();
+	
+	for (i = 0; i < rwidth; i++){
+		threshold = roc_scale.invert(i);
+		rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold);
+	    el = {
+	        "tpr": rates.tpr,
+	        "fpr": rates.fpr
+	    }
+	    data.push(el);
+	}
+	return data;
+}
