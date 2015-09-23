@@ -57,8 +57,8 @@
 			<g class="graph-container">
 				<path class="line curve curve1"></path>
 				<path class="line curve curve2"></path>
-				<line class="line threshold"></line>
-				<circle id="thresholdcontrol" class="control threshold"></circle>
+				<line class="line threshold threshold-line"></line>
+				<circle id="thresholdcontrol" class="control threshold threshold-line"></circle>
 				<circle id="curve1control" class="curvecontrol control"></circle>
 				<circle id="curve2control" class="curvecontrol control"></circle>
 				<g class="x axis"></g>
@@ -75,7 +75,7 @@
 				<path class="curve curve2-filled"></path>
 				<path class="line curve curve2"></path>
 				<path class="curve false-negative-curve"></path>
-				<line class="line threshold"></line>		
+				<line class="line threshold threshold-line"></line>		
 				<g class="x axis"></g>
 				<g class="y axis"></g>
 			</g>
@@ -90,7 +90,7 @@
 				<path class="curve curve1-filled"></path>
 				<path class="line curve curve1"></path>
 				<path class="curve false-positive-curve"></path>
-				<line class="line threshold"></line>
+				<line class="line threshold threshold-line"></line>
 				<g class="x axis"></g>
 				<g class="y axis"></g>
 			</g>
@@ -122,6 +122,9 @@
 			<g class="roc roc-container">
 				<line class="line roc-diagonal"></line>
 				<path class="line roc-curve"></path>
+				<circle id="threshold-marker" class="threshold"></circle>
+				<line id="threshold-horiz" class="line threshold threshold-marker-line"></line>
+				<line id="threshold-vert" class="line threshold threshold-marker-line"></line>
 				<g class="roc roc-x-axis axis"></g>
 				<g class="roc roc-y-axis axis"></g>
 				<g class="roc roc-top-axis axis"></g>

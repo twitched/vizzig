@@ -45,6 +45,9 @@ d3.selectAll(".y.axis")
 d3.selectAll(".control")
 	.attr("r", "5")
 	
+d3.select("#threshold-marker")
+	.attr("r", "5")
+	
 var rmargin = {
         top: 20,
         right: 20,
@@ -156,13 +159,13 @@ d3.select("#axisscalecheck").on("change", function(){
 var threshold_drag = d3.behavior.drag()
     .on("drag", move_threshold);
 
-d3.selectAll(".threshold")
+d3.selectAll(".threshold-line")
 	.call(threshold_drag);
 
 //update the threshold
 function update_threshold(duration){
 	threshold = Number(d3.select("#thresholdbox").property("value"));
-	d3.selectAll(".threshold")
+	d3.selectAll(".threshold-line")
 		.datum(threshold)
 		.transition()
 		.attr("x1", x(threshold))
@@ -184,7 +187,7 @@ function update_threshold(duration){
 //handle threshold drag event along x axis
 function move_threshold(d) {
 	threshold = x.invert(d3.event.x);
-	d3.selectAll(".threshold")
+	d3.selectAll(".threshold-line")
 		.datum(threshold)
 	    .attr("x1", Math.max(0, Math.min(width, d3.event.x)))
 		.attr("x2", Math.max(0, Math.min(width, d3.event.x)));
@@ -315,6 +318,8 @@ function update_rates(threshold, duration){
 	d3.select("#fnr").html(r.fnr.toPrecision(4));
 	
 	update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration);
+	
+	update_threshold_marker(r, duration);
 }
 
 //update the areas that show the errors
@@ -435,6 +440,36 @@ function update_roc(){
 	d3.selectAll(".roc-curve")
 		.datum(data)
 		.attr("d", roc_line);
+}
+
+//update the threshold
+function update_threshold_marker(rates, duration){
+	threshold = Number(d3.select("#thresholdbox").property("value"));
+	d3.selectAll("#threshold-horiz")
+		.datum(threshold)
+		// .transition()
+		.attr("x1", 0 - margin.left)
+		.attr("y1", ry(rates.tpr))
+		.attr("x2", rwidth + rmargin.right)
+		.attr("y2", ry(rates.tpr))
+		// .duration(duration);
+
+	d3.selectAll("#threshold-vert")
+		.datum(threshold)
+		// .transition()
+		.attr("x1", rx(rates.fpr))
+		.attr("y1", 0 - rmargin.top)
+		.attr("x2", rx(rates.fpr))
+		.attr("y2", rheight + rmargin.bottom)
+		// .duration(duration);
+
+	
+	d3.select("#threshold-marker")
+		.datum(threshold)
+		//.transition()
+		.attr("cx", rx(rates.fpr))
+		.attr("cy", ry(rates.tpr))
+		//.duration(duration);
 }	
 	
 function get_roc_data(){

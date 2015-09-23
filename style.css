@@ -91,3 +91,15 @@ label {
     stroke-width: 2px;	
 	stroke: red;
 }
+
+.threshold-marker-line {
+    fill: none;
+    stroke-width: 1px;	
+	stroke: purple;	
+}
+
+#threshold-marker {
+	fill: white;
+	stroke: purple;
+	stroke-width: 2px;
+}
