@@ -12,7 +12,7 @@ height = 200 - margin.top - margin.bottom;
 z_limit = 4;
 
 //precision for numbers
-precision = 4;
+var format = d3.format("6.4f")
 
 var x = d3.scale.linear()
 	.range([0, width]);
@@ -197,7 +197,7 @@ function move_threshold(d) {
 		.attr("cx", x(threshold))
 		.attr("cy", height / 2)
 	
-	d3.select("#thresholdbox").attr("value", threshold.toPrecision(precision));
+	d3.select("#thresholdbox").attr("value", format(threshold));
 	
 	update_rates(threshold, 0);
 }
@@ -225,14 +225,12 @@ function move_control(c, d){
 		.attr("cy", d3.event.y);
 	
 	//update the means
-	d3.select("#mean1box").attr("value", d3.select("#curve1control").datum().x.toPrecision(precision));
-	d3.select("#mean2box").attr("value", d3.select("#curve2control").datum().x.toPrecision(precision));
+	d3.select("#mean1box").attr("value", format(d3.select("#curve1control").datum().x));
+	d3.select("#mean2box").attr("value", format(d3.select("#curve2control").datum().x));
 	d3.select("#sigma1box").attr("value", 
-		gaussian_sigma(d3.select("#curve1control")
-		.datum().y.toPrecision(precision)));
+		gaussian_sigma(format(d3.select("#curve1control").datum().y)));
 	d3.select("#sigma2box").attr("value", 
-		gaussian_sigma(d3.select("#curve2control")
-		.datum().y.toPrecision(precision)));
+		gaussian_sigma(format(d3.select("#curve2control").datum().y)));
 }
 
 //update the curves, controls, and threshold
@@ -312,10 +310,10 @@ function update_rates(threshold, duration){
 	
 	r = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold)
 	
-	d3.select("#tpr").html(r.tpr.toPrecision(4));
-	d3.select("#tnr").html(r.tnr.toPrecision(4));
-	d3.select("#fpr").html(r.fpr.toPrecision(4));
-	d3.select("#fnr").html(r.fnr.toPrecision(4));
+	d3.select("#tpr").html(format(r.tpr));
+	d3.select("#tnr").html(format(r.tnr));
+	d3.select("#fpr").html(format(r.fpr));
+	d3.select("#fnr").html(format(r.fnr));
 	
 	update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration);
 	
