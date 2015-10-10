@@ -2,8 +2,8 @@
 var margin = {
         top: 20,
         right: 20,
-        bottom: 30,
-        left: 50
+        bottom: 60,
+		left: 80
     },
 width = 300 - margin.left - margin.right,
 height = 200 - margin.top - margin.bottom;
@@ -41,6 +41,13 @@ d3.selectAll(".x.axis")
 
 d3.selectAll(".y.axis")
     .call(yAxis);
+
+//position axis labels
+d3.selectAll(".normalplot-x-axis-label")
+	.attr("transform", "translate(" + (width / 2) + "," + (height + 50) + ")");
+
+d3.selectAll(".normalplot-y-axis-label")
+	.attr("transform","translate(" + -50 + "," + (height / 2) +")rotate(-90)");	
 	
 d3.selectAll(".control")
 	.attr("r", "5")
@@ -86,6 +93,12 @@ var rightAxis = d3.svg.axis()
 	.scale(ry)
 	.ticks(0)
 	.orient("right");
+
+d3.selectAll(".roc-x-axis-label")
+	.attr("transform", "translate(" + (rwidth / 2) + "," + (rheight + 50) + ")");
+
+d3.selectAll(".roc-y-axis-label")
+	.attr("transform","translate(" + -50 + "," + (rheight / 2) +")rotate(-90)");	
 
 d3.selectAll(".roc-svg")
     .attr("width", rwidth + rmargin.left + rmargin.right)
@@ -171,7 +184,7 @@ function update_threshold(duration){
 		.attr("x1", x(threshold))
 		.attr("y1", 0 - margin.top)
 		.attr("x2", x(threshold))
-		.attr("y2", height + margin.bottom)
+		.attr("y2", height + margin.bottom / 2)
 		.duration(duration);
 	
 	d3.select("#thresholdcontrol")
@@ -345,7 +358,7 @@ function update_false_areas(x_scale, threshold, m1, s1, m2, s2, duration){
 function update_x_axis(m1, s1, m2, s2, x){
 	x.domain(d3.extent([m1 - (z_limit * s1), m2 - (z_limit * s2), m1 + (z_limit * s1), m2 + (z_limit * s2)]));
 	roc_scale.domain(x.domain()); //update the roc scale, too
-	d3.selectAll(".x").transition().call(xAxis);		
+	d3.selectAll(".x.axis").transition().call(xAxis);		
 }
 
 //make the y axis min and max scale with the data
@@ -354,7 +367,7 @@ function update_y_axis(data, y){
 	y.domain(d3.extent(data, function(d) {
 	    return d.p;
 	}));
-	d3.selectAll(".y").transition().call(yAxis);
+	d3.selectAll(".y.axis").transition().call(yAxis);
 }
 
 //given a mean, sigma, and an x scale, return a an array 
