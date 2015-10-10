@@ -228,9 +228,10 @@ function move_control(c, d){
 	d3.select("#mean1box").attr("value", format(d3.select("#curve1control").datum().x));
 	d3.select("#mean2box").attr("value", format(d3.select("#curve2control").datum().x));
 	d3.select("#sigma1box").attr("value", 
-		gaussian_sigma(format(d3.select("#curve1control").datum().y)));
+		format(gaussian_sigma(d3.select("#curve1control").datum().y)));
+	console.log(format(gaussian_sigma(d3.select("#curve1control").datum().y)))
 	d3.select("#sigma2box").attr("value", 
-		gaussian_sigma(format(d3.select("#curve2control").datum().y)));
+		format(gaussian_sigma(d3.select("#curve2control").datum().y)));
 }
 
 //update the curves, controls, and threshold
