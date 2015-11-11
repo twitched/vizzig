@@ -114,23 +114,24 @@
 		</thead>
 		<tr class="border">
 			<td class="border">classified signal</td>
-			<td class="border">TP: <span id=tpr></span></td>
-			<td class="border">FP: <span id=fpr></span></td>
+			<td class="border"><span class="tp">TP: <span id=tpr></span></span></td>
+			<td class="border"><span class="fp">FP: <span id=fpr></span></span></td>
 		</tr>
 		<tr class="border">
 			<td class="border">classified no signal</td>
-			<td class="border">FN: <span id=fnr></span></td>
-			<td class="border">TN: <span id=tnr></span></td>
+			<td class="border"><span class="fn">FN: <span id=fnr></span></span></td>
+			<td class="border"><span class="tn">TN: <span id=tnr></span></span></td>
 		</tr>
 	</table>
+	<p/>
 	<div class="graph roc" id="roc">
 		<svg class="roc roc-svg">
 			<g class="roc roc-container">
 				<line class="line roc-diagonal"></line>
 				<path class="line roc-curve"></path>
 				<circle id="threshold-marker" class="threshold"></circle>
-				<line id="threshold-horiz" class="line threshold threshold-marker-line"></line>
-				<line id="threshold-vert" class="line threshold threshold-marker-line"></line>
+				<line id="threshold-horiz" class="line threshold threshold-marker-line tp"></line>
+				<line id="threshold-vert" class="line threshold threshold-marker-line fp"></line>
 				<g class="roc roc-x-axis axis"></g>
 				<g class="roc roc-y-axis axis"></g>
 				<g class="roc roc-top-axis axis"></g>

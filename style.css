@@ -42,6 +42,21 @@ body {
 	fill: deeppink;
 }
 
+.tp {
+	color: steelblue;
+}
+
+.fp {
+	color: darkorchid;
+}
+
+.tn {
+	color: #F56991;
+}
+
+.fn {
+	color: deeppink;
+}
 
 .input {
 	font-size: 14pt;
@@ -89,15 +104,21 @@ label {
 .roc-curve {
     fill: none;
     stroke-width: 2px;	
-	stroke: red;
+	stroke: purple;
 }
 
 .threshold-marker-line {
     fill: none;
     stroke-width: 1px;	
-	stroke: purple;	
 }
 
+.threshold-marker-line.fp {
+	stroke: crimson;
+}
+
+.threshold-marker-line.tp {
+	stroke: steelblue;
+}
 #threshold-marker {
 	fill: white;
 	stroke: purple;
