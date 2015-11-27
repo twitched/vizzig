@@ -43,7 +43,7 @@ body {
 }
 
 .tp {
-	color: steelblue;
+	color: #F56991;
 }
 
 .fp {
@@ -51,7 +51,7 @@ body {
 }
 
 .tn {
-	color: #F56991;
+	color: steelblue;
 }
 
 .fn {
