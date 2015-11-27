@@ -113,11 +113,11 @@ label {
 }
 
 .threshold-marker-line.fp {
-	stroke: crimson;
+	stroke: darkorchid;
 }
 
 .threshold-marker-line.tp {
-	stroke: steelblue;
+	stroke: #F56991;
 }
 #threshold-marker {
 	fill: white;
