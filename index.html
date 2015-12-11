@@ -150,6 +150,14 @@
 		</svg>		
 	</div>
 </div>
+<div id="bayes">
+	<p>
+	  <label class="input" for="baserate">Base Rate, \(P(Signal)\): </label>
+	  <input class="input inputbox" type="text" id="baseratebox" size="6" value="0.5"/>
+	</p>
+	<p>$$P(Signal|Pos)=\frac{P(Pos|Signal)P(Signal)}{P(Pos|Signal)P(Signal)+P(Pos|!Signal)P(!Signal)}$$</p>
+	<p>$$P(Signal|Pos)=\frac{\class{eq-tpr}{}\class{eq-baserate}{}}{\class{eq-tpr}{}\class{eq-baserate}{}+\class{eq-fpr}{}\class{eq-inverse-baserate}{}}$$</p>
+</div>
 <script type="text/javascript" src="main.js"></script>
 </body>
 
