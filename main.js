@@ -318,7 +318,7 @@ function update_controls(m1, s1, m2, s2, x, y){
 		.attr("cy", y(control_y2));
 }
 
-//update the confustion matrix
+//update the confustion matrix and bayes function
 function update_rates(threshold, duration){
 	ms = get_means_and_sigmas()
 	
@@ -332,6 +332,14 @@ function update_rates(threshold, duration){
 	update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration);
 	
 	update_threshold_marker(r, duration);
+	
+	update_bayes(d3.select("#baseratebox").property("value"), r.tpr, r.fpr);
+}
+
+function update_bayes(baserate, tpr, fpr){
+	d3.selectAll(".eq-tpr").text(format(tpr));
+	d3.selectAll(".eq-fpr").text(format(fpr));
+	d3.selectAll(".eq-baserate").text(format(baserate));
 }
 
 //update the areas that show the errors
