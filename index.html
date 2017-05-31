@@ -77,7 +77,7 @@
 				<path class="curve curve2-filled"></path>
 				<path class="line curve curve2"></path>
 				<path class="curve false-negative-curve"></path>
-				<line class="line threshold threshold-line"></line>		
+				<line class="line threshold threshold-line"></line>
 				<g class="x axis"></g>
 				<g class="y axis"></g>
 				<text class="normalplot-x-axis-label" text-anchor="middle">Criterion</text>
@@ -100,7 +100,7 @@
 				<text class="normalplot-x-axis-label" text-anchor="middle">Criterion</text>
 				<text class="normalplot-y-axis-label" text-anchor="middle">Probability</text>
 			</g>
-		</svg>		
+		</svg>
 	</div>
 </div>
 <div id="col2">
@@ -108,19 +108,19 @@
 		<thead>
 			<tr class="no-border">
 				<td>&nbsp;</td>
-				<td class="border">noise + signal</td>
 				<td class="border">noise</td>
+        <td class="border">noise + signal</td>
 			</tr>
 		</thead>
 		<tr class="border">
 			<td class="border">classified signal</td>
-			<td class="border"><span class="tp">TP: <span id=tpr></span></span></td>
 			<td class="border"><span class="fp">FP: <span id=fpr></span></span></td>
+      <td class="border"><span class="tp">TP: <span id=tpr></span></span></td>
 		</tr>
 		<tr class="border">
 			<td class="border">classified no signal</td>
-			<td class="border"><span class="fn">FN: <span id=fnr></span></span></td>
 			<td class="border"><span class="tn">TN: <span id=tnr></span></span></td>
+      <td class="border"><span class="fn">FN: <span id=fnr></span></span></td>
 		</tr>
 	</table>
 	<p/>
@@ -139,7 +139,7 @@
 				<text class="roc-x-axis-label" text-anchor="middle">False Positive Rate</text>
 				<text class="roc-y-axis-label" text-anchor="middle">True Positive Rate</text>
 			</g>
-		</svg>		
+		</svg>
 	</div>
 </div>
 <script type="text/javascript" src="main.js"></script>
