@@ -170,6 +170,7 @@ d3.selectAll(".threshold-line")
 //update the threshold
 function update_threshold(duration){
 	threshold = Number(d3.select("#thresholdbox").property("value"));
+  base_rate = Number(d3.select("#baseratebox").property("value"));
 	d3.selectAll(".threshold-line")
 		.datum(threshold)
 		.transition()
@@ -186,7 +187,7 @@ function update_threshold(duration){
 		.attr("cy", height / 2)
 		.duration(duration);
 
-	update_rates(threshold, duration);
+	update_rates(threshold, base_rate, duration);
 }
 
 //handle threshold drag event along x axis
@@ -243,10 +244,11 @@ function move_control(control, d){
 //update the curves, controls, and threshold
 function update(x, y){
 	ms = get_means_and_sigmas();
-	update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
-	update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
+  base_rate = Number(d3.select("#baseratebox").property("value"));
+	update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
+	update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
 	update_threshold(250);
-	update_roc();
+	update_roc(base_rate);
 }
 
 //get the means and sigmas from their input boxes
@@ -259,7 +261,7 @@ function get_means_and_sigmas(){
 	}
 }
 //update the curves
-function update_curves(m1, s1, m2, s2, x, y){
+function update_curves(m1, s1, m2, s2, x, y, base_rate){
 
 	if(!isNaN(m1)
 			&& !isNaN(m2)
@@ -271,8 +273,8 @@ function update_curves(m1, s1, m2, s2, x, y){
 			update_x_axis(m1, s1, m2, s2, x);
 		}
 
-		data1 = get_data(m1, s1, x, 0, width);
-		data2 = get_data(m2, s2, x, 0, width);
+		data1 = get_data(m1, s1, x, 0, width, 1 - base_rate);
+		data2 = get_data(m2, s2, x, 0, width, base_rate);
 
 		if(d3.select("#axisscalecheck").property("checked")){
 			update_y_axis(data1.concat(data2), y);
@@ -297,14 +299,14 @@ function update_curves(m1, s1, m2, s2, x, y){
 }
 
 //update the location of the controls
-function update_controls(m1, s1, m2, s2, x, y){
-	control_y1 = gaussian_pdf(m1, m1, s1);
+function update_controls(m1, s1, m2, s2, x, y, base_rate){
+	control_y1 = gaussian_pdf(m1, m1, s1, 1 - base_rate);
 	d3.select("#curve1control")
 		.datum({x: m1, y: control_y1})
 		.attr("cx", x(m1))
 		.attr("cy", y(control_y1));
 
-	control_y2 = gaussian_pdf(m2, m2, s2);
+	control_y2 = gaussian_pdf(m2, m2, s2, base_rate);
 	d3.select("#curve2control")
 		.datum({x: m2, y: control_y2})
 		.attr("cx", x(m2))
@@ -312,25 +314,25 @@ function update_controls(m1, s1, m2, s2, x, y){
 }
 
 //update the confustion matrix
-function update_rates(threshold, duration){
+function update_rates(threshold, base_rate, duration){
 	ms = get_means_and_sigmas()
 
-	r = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold)
+	r = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate)
 
-	d3.select("#tpr").html(format(r.tpr));
-	d3.select("#tnr").html(format(r.tnr));
-	d3.select("#fpr").html(format(r.fpr));
-	d3.select("#fnr").html(format(r.fnr));
+	d3.select("#tpr").html(format(r.tp));
+	d3.select("#tnr").html(format(r.tn));
+	d3.select("#fpr").html(format(r.fp));
+	d3.select("#fnr").html(format(r.fn));
 
-	update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration);
+	update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration, base_rate);
 
 	update_threshold_marker(r, duration);
 }
 
 //update the areas that show the errors
-function update_false_areas(x_scale, threshold, m1, s1, m2, s2, duration){
-	false_positive_data = get_data(m1, s1, x_scale, x(threshold), width);
-	false_negative_data = get_data(m2, s2, x_scale, 0, x(threshold));
+function update_false_areas(x_scale, threshold, m1, s1, m2, s2, duration, base_rate){
+	false_positive_data = get_data(m1, s1, x_scale, x(threshold), width, base_rate);
+	false_negative_data = get_data(m2, s2, x_scale, 0, x(threshold), 1 - base_rate);
 
 
 		d3.selectAll(".false-positive-curve")
@@ -363,15 +365,16 @@ function update_y_axis(data, y){
 	d3.selectAll(".y.axis").transition().call(yAxis);
 }
 
-//given a mean, sigma, and an x scale, return a an array
+//given a mean, sigma, a linear x scale, start and ends,
+//and a scaling factor return a an array
 //representing the y points of a normal distribution
-function get_data(mean, sigma, x, startx, endx){
+function get_data(mean, sigma, x, startx, endx, scale){
 	data = []; //erase current data
 
 	//populate the data
 	for (i = startx; i < endx; i++) {
 		q = x.invert(i);
-	    p = gaussian_pdf(q, mean, sigma); // calc prob of each point
+	    p = gaussian_pdf(q, mean, sigma, scale); // calc prob of each point
 	    el = {
 	        "q": q,
 	        "p": p
@@ -382,35 +385,42 @@ function get_data(mean, sigma, x, startx, endx){
 	return data
 }
 
-function get_rates(m1, s1, m2, s2, threshold){
-	fnr = gaussian_cdf(threshold, m2, s2);
-	tnr = gaussian_cdf(threshold, m1, s1);
+function get_rates(m1, s1, m2, s2, threshold, base_rate){
+	fn = gaussian_cdf(threshold, m2, s2, 1 - base_rate);
+	tn = gaussian_cdf(threshold, m1, s1, base_rate);
+  tp = base_rate - fn;
+  fp = 1 - base_rate - tn;
+  n = fn + tn + tp + fp;
 	return {
-		"fnr":fnr,
-		"tpr":1 - fnr,
-		"tnr":tnr,
-		"fpr":1 - tnr
+		"fn":fn,
+		"tp":tp,
+		"tn":tn,
+		"fp":fp,
+    "fnr":fn / (fn + tp),
+    "tpr":tp / (fn + tp),
+    "tnr":tn / (fp + tn),
+    "fpr":fp / (fp + tn)
 	}
 }
 
-//taken from Jason Davies science library
+//taken from Jason Davies science library with scale added
 // https://github.com/jasondavies/science.js/blob/master/src/stats/distribution/gaussian.js
-function gaussian_pdf(x, mean, sigma) {
+function gaussian_pdf(x, mean, sigma, scale = 1) {
 	var gaussianConstant = 1 / Math.sqrt(2 * Math.PI),
     x = (x - mean) / sigma;
-    return gaussianConstant * Math.exp(-.5 * x * x) / sigma;
+    return (gaussianConstant * Math.exp(-.5 * x * x) / sigma) * scale;
 };
 
 //return sigma (standard deviation) given the probability at the mean
-function gaussian_sigma(p){
-	return 1 / (p * Math.sqrt(2 * Math.PI))
+function gaussian_sigma(p, scale = 1){
+	return 1 / ((p/scale) * Math.sqrt(2 * Math.PI))
 }
 
 //taken from Jason Davies science library
 // https://github.com/jasondavies/science.js/blob/master/src/stats/distribution/gaussian.js
-function gaussian_cdf(x, mean, sigma) {
+function gaussian_cdf(x, mean, sigma, scale = 1) {
    x = (x - mean) / sigma;
-   return .5 * (1 + erf(x / Math.SQRT2));
+   return (.5 * (1 + erf(x / Math.SQRT2))) * scale;
 };
 
 //taken from https://github.com/jasondavies/science.js/blob/master/src/stats/erf.js
@@ -438,9 +448,8 @@ function erf(x) {
 
 //////////////////////////// ROC ////////////////////////////////
 
-//function for creating lines with data in the form of q, p
-function update_roc(){
-	data = get_roc_data();
+function update_roc(base_rate){
+	data = get_roc_data(base_rate);
 
 	d3.selectAll(".roc-curve")
 		.datum(data)
@@ -477,14 +486,14 @@ function update_threshold_marker(rates, duration){
 		//.duration(duration);
 }
 
-function get_roc_data(){
+function get_roc_data(base_rate){
 	data = [];
 
 	ms = get_means_and_sigmas();
 
 	for (i = 0; i < rwidth; i++){
 		threshold = roc_scale.invert(i);
-		rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold);
+		rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate);
 	    el = {
 	        "tpr": rates.tpr,
 	        "fpr": rates.fpr
