@@ -6,6 +6,10 @@ body {
 	float:left;
 }
 
+#col2 {
+	display: inline-block;
+}
+
 .axis path,
 .axis line {
     fill: none;
@@ -15,7 +19,7 @@ body {
 
 .line {
     fill: none;
-    stroke-width: 1.5px;	
+    stroke-width: 1.5px;
 }
 
 .curve1 {
@@ -59,16 +63,18 @@ body {
 }
 
 .input {
-	font-size: 12pt;
-	margin: 5px;
 }
 
 p.input {
 	text-align: center;
 }
 
+.inputtable {
+  border-collapse: collapse;
+}
+
 label {
-	display: inline-block; 
+	display: inline-block;
 	text-align: left;
 }
 
@@ -83,7 +89,7 @@ label {
 }
 
 #thresholdcontrol {
-	cursor: ew-resize;	
+	cursor: ew-resize;
 }
 
 .border {
@@ -91,25 +97,37 @@ label {
 	padding: .5em;
 }
 
+.border-left {
+	border-left: 1px solid;
+	padding: .5em;
+}
+
+.tabletitle {
+  padding: .5em;
+  font-weight: bold;
+  text-align: center;
+}
+
 .confusion-matrix {
 	border-collapse: collapse;
+  margin: 0 auto;
 }
 
 .roc-diagonal {
     fill: none;
-    stroke-width: 1px;	
+    stroke-width: 1px;
 	stroke: black;
 }
 
 .roc-curve {
     fill: none;
-    stroke-width: 2px;	
+    stroke-width: 2px;
 	stroke: purple;
 }
 
 .threshold-marker-line {
     fill: none;
-    stroke-width: 1px;	
+    stroke-width: 1px;
 }
 
 .threshold-marker-line.fp {

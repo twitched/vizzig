@@ -13,40 +13,62 @@
 <body>
 
 <p class="input">
-	<table>
-		<tr>
+	<table class="inputtable">
+    <tr class="tabletitle">
+      <td colspan="4">
+        Parameters
+      </td>
+    </tr>
+    <tr class="border">
+			<td colspan="2" class="border-left">
+			     noise
+      </td>
+      <td colspan="2" class="border-left">
+			     noise + signal
+      </td>
+    </tr>
+		<tr class="border">
+			<td class="border-left">
+			  <label class="input" for="mean1box">Mean: </label>
+      </td>
 			<td>
-				<div class="input" id="input1">
-					<p>
-					  <label class="input" for="mean1box">Mean: </label>
-					  <input class="input inputbox" type="text" id="mean1box" size="6" value="0"/>
-					</p>
-					<p>
-					  <label class="input" for="sigma1box">Standard deviation:</label>
-					  <input class="input inputbox" type="text" id="sigma1box" size="6" value="1"/>
-					</p>
-				</div>
+			  <input class="input inputbox" type="text" id="mean1box" size="6" value="0"/>
+      </td>
+      <td class="border-left">
+			  <label class="input" for="mean2box">Mean: </label>
+      </td>
+			<td>
+			  <input class="input inputbox" type="text" id="mean2box" size="6" value="2"/>
+      </td>
+    </tr>
+    <tr class="border">
+			<td class="border-left">
+			  <label class="input" for="sigma1box">Standard dev:</label>
+      </td>
+			<td>
+			  <input class="input inputbox" type="text" id="sigma1box" size="6" value="1"/>
 			</td>
+			<td class="border-left">
+			  <label class="input" for="sigma2box">Standard dev:</label>
+      </td>
 			<td>
-				<div class="input" id="input2">
-					<p>
-					  <label class="input" for="mean2box">Mean: </label>
-					  <input class="input inputbox" type="text" id="mean2box" size="6" value="2"/>
-					</p>
-					<p>
-					  <label class="input" for="sigma2box">Standard deviation:</label>
-					  <input class="input inputbox" type="text" id="sigma2box" size="6" value="1"/>
-					</p>
-				</div>
+			  <input class="input inputbox" type="text" id="sigma2box" size="6" value="1"/>
 			</td>
+	    </tr>
+  </table>
+  <table>
+    <tr class="border">
+      <td>
+        &nbsp;
+      </td>
+      <td>
+			  <input class="input inputbox" type="checkbox" id="axisscalecheck" value="lock" checked>Scale axes</input>
+      </td>
 			<td>
-				<div class="input" id="input-options">
-				  <input class="input inputbox" type="checkbox" id="axisscalecheck" value="lock" checked>Scale axes</input>
-				</div>
-				<div class="input" id="input-options">
-				  <label class="input" for="thresholdbox">Threshold:</label>
-				  <input class="input inputbox" type="text" id="thresholdbox" size="6" value="1"/>
-				</div>
+			  <label class="input" for="thresholdbox">Threshold:</label>
+      </td>
+			<td>
+			  <input class="input inputbox" type="text" id="thresholdbox" size="6" value="1"/>
 			</td>
 		</tr>
 	</table>
@@ -106,8 +128,13 @@
 <div id="col2">
 	<table class="confusion-matrix">
 		<thead>
+      <tr class="tabletitle">
+        <td colspan="4">
+          Confusion Matrix
+        </td>
+      </tr>
 			<tr class="no-border">
-				<td>&nbsp;</td>
+				<td class="border">&nbsp;</td>
 				<td class="border">noise</td>
         <td class="border">noise + signal</td>
 			</tr>
@@ -125,6 +152,7 @@
 	</table>
 	<p/>
 	<div class="graph roc" id="roc">
+    <p class="tabletitle">ROC Curve</p>
 		<svg class="roc roc-svg">
 			<g class="roc roc-container">
 				<line class="line roc-diagonal"></line>
