@@ -14,20 +14,18 @@ z_limit = 4;
 //precision for numbers
 var format = d3.format("6.4f")
 
-var x = d3.scale.linear()
+var x = d3.scaleLinear()
 	.range([0, width]);
 
-var y = d3.scale.linear()
+var y = d3.scaleLinear()
     .range([height, 0]);
 
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
+var xAxis = d3.axisBottom()
+    .scale(x);
 
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left");
-	
+var yAxis = d3.axisLeft()
+    .scale(y);
+
 d3.selectAll(".normalplot")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -47,14 +45,14 @@ d3.selectAll(".normalplot-x-axis-label")
 	.attr("transform", "translate(" + (width / 2) + "," + (height + 50) + ")");
 
 d3.selectAll(".normalplot-y-axis-label")
-	.attr("transform","translate(" + -50 + "," + (height / 2) +")rotate(-90)");	
-	
+	.attr("transform","translate(" + -50 + "," + (height / 2) +")rotate(-90)");
+
 d3.selectAll(".control")
 	.attr("r", "5")
-	
+
 d3.select("#threshold-marker")
 	.attr("r", "5")
-	
+
 var rmargin = {
         top: 20,
         right: 20,
@@ -64,48 +62,44 @@ var rmargin = {
 rwidth = 420 - rmargin.left - rmargin.right,
 rheight = 400 - rmargin.top - rmargin.bottom;
 
-var rx = d3.scale.linear()
+var rx = d3.scaleLinear()
 	.domain([0, 1])
 	.range([0, rwidth]);
 
-var ry = d3.scale.linear()
+var ry = d3.scaleLinear()
 	.domain([0,1])
     .range([rheight, 0]);
 
-var roc_scale = d3.scale.linear()
+var roc_scale = d3.scaleLinear()
 	.domain(x.domain())
 	.range([0, rwidth])
 
-var rxAxis = d3.svg.axis()
-    .scale(rx)
-    .orient("bottom");
+var rxAxis = d3.axisBottom()
+    .scale(rx);
 
-var ryAxis = d3.svg.axis()
-    .scale(ry)
-    .orient("left");
+var ryAxis = d3.axisLeft()
+    .scale(ry);
 
-var topAxis = d3.svg.axis()
+var topAxis = d3.axisTop()
 	.scale(rx)
-	.ticks(0)
-	.orient("top");
+	.ticks(0);
 
-var rightAxis = d3.svg.axis()
+var rightAxis = d3.axisRight()
 	.scale(ry)
-	.ticks(0)
-	.orient("right");
+	.ticks(0);
 
 d3.selectAll(".roc-x-axis-label")
 	.attr("transform", "translate(" + (rwidth / 2) + "," + (rheight + 50) + ")");
 
 d3.selectAll(".roc-y-axis-label")
-	.attr("transform","translate(" + -50 + "," + (rheight / 2) +")rotate(-90)");	
+	.attr("transform","translate(" + -50 + "," + (rheight / 2) +")rotate(-90)");
 
 d3.selectAll(".roc-svg")
     .attr("width", rwidth + rmargin.left + rmargin.right)
     .attr("height", rheight + rmargin.top + rmargin.bottom)
 
 d3.selectAll(".roc-container")
- 	.attr("transform", "translate(" + rmargin.left + "," + rmargin.top + ")")	
+ 	.attr("transform", "translate(" + rmargin.left + "," + rmargin.top + ")")
 
 d3.selectAll(".roc-x-axis")
    	.attr("transform", "translate(0," + rheight + ")")
@@ -129,16 +123,16 @@ d3.selectAll(".roc-diagonal")
 
 
 //function for creating lines with data in the form of q, p
-var line = d3.svg.line()
+var line = d3.line()
     .x(function(d) {
         return x(d.q);
     })
     .y(function(d) {
         return y(d.p);
-    });	
+    });
 
 //function for creating filled areas with data in the form of q, p
-var fill = d3.svg.area()
+var fill = d3.area()
     .x(function(d) {
         return x(d.q);
     })
@@ -148,18 +142,18 @@ var fill = d3.svg.area()
     .y0(function(d) {
  		return y(0);
     });
-	
-var roc_line = d3.svg.line()
+
+var roc_line = d3.line()
     .x(function(d) {
         return rx(d.fpr);
     })
     .y(function(d) {
 		return ry(d.tpr);
-    });	
+    });
 
 update(x, y);
 
-//attach event	
+//attach event
 d3.selectAll(".inputbox").on("input", function(){
 	update(x, y)
 });
@@ -167,13 +161,11 @@ d3.selectAll(".inputbox").on("input", function(){
 d3.select("#axisscalecheck").on("change", function(){
 	update(x, y)
 });
-	
-//make threshold draggable
-var threshold_drag = d3.behavior.drag()
-    .on("drag", move_threshold);
 
+//make threshold draggable
 d3.selectAll(".threshold-line")
-	.call(threshold_drag);
+	.call(d3.drag()
+      .on("drag", move_threshold));
 
 //update the threshold
 function update_threshold(duration){
@@ -186,14 +178,14 @@ function update_threshold(duration){
 		.attr("x2", x(threshold))
 		.attr("y2", height + margin.bottom / 2)
 		.duration(duration);
-	
+
 	d3.select("#thresholdcontrol")
 		.datum(threshold)
 		.transition()
 		.attr("cx", x(threshold))
 		.attr("cy", height / 2)
 		.duration(duration);
-	
+
 	update_rates(threshold, duration);
 }
 
@@ -204,46 +196,47 @@ function move_threshold(d) {
 		.datum(threshold)
 	    .attr("x1", Math.max(0, Math.min(width, d3.event.x)))
 		.attr("x2", Math.max(0, Math.min(width, d3.event.x)));
-		
+
 	d3.select("#thresholdcontrol")
 		.datum(threshold)
-		.attr("cx", x(threshold))
+		.attr("cx", d3.event.x)
 		.attr("cy", height / 2)
-	
+
 	d3.select("#thresholdbox").attr("value", format(threshold));
-	
+
 	update_rates(threshold, 0);
 }
 
 //make the curve controls draggable
-var control_drag = d3.behavior.drag()
+var control_drag = d3.drag()
 	.on("drag", function(d) {
-		move_control(this, d);
+		move_control(this, d)
 		ms = get_means_and_sigmas();
 		update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
 		update_threshold(0);
 		update_roc();
 	})
-	.on("dragend", function() {update(x,y)});
+  //subject should be just the x and y of the control instead of the datum's x and y
+  .subject(function(){ return {x: d3.event.x, y: d3.event.y}})
+	.on("end", function() {update(x,y)});
 
 d3.selectAll(".curvecontrol")
 	.call(control_drag);
 
 //move the control
-function move_control(c, d){
+function move_control(control, d){
 	d.x = x.invert(d3.event.x);
 	d.y = y.invert(d3.event.y)
-	d3.select(c)
+	d3.select(control)
 		.attr("cx", d3.event.x)
 		.attr("cy", d3.event.y);
-	
+
 	//update the means
 	d3.select("#mean1box").attr("value", format(d3.select("#curve1control").datum().x));
 	d3.select("#mean2box").attr("value", format(d3.select("#curve2control").datum().x));
-	d3.select("#sigma1box").attr("value", 
+	d3.select("#sigma1box").attr("value",
 		format(gaussian_sigma(d3.select("#curve1control").datum().y)));
-	console.log(format(gaussian_sigma(d3.select("#curve1control").datum().y)))
-	d3.select("#sigma2box").attr("value", 
+	d3.select("#sigma2box").attr("value",
 		format(gaussian_sigma(d3.select("#curve2control").datum().y)));
 }
 
@@ -265,17 +258,17 @@ function get_means_and_sigmas(){
 		s2:Number(d3.select("#sigma2box").property("value")),
 	}
 }
-//update the curves 
+//update the curves
 function update_curves(m1, s1, m2, s2, x, y){
 
 	if(!isNaN(m1)
 			&& !isNaN(m2)
-			&& !isNaN(s1) 
-			&& !isNaN(s2) 
+			&& !isNaN(s1)
+			&& !isNaN(s2)
 			&& s1 != 0
 			&& s2 != 0){
 		if(d3.select("#axisscalecheck").property("checked")){
-			update_x_axis(m1, s1, m2, s2, x);		
+			update_x_axis(m1, s1, m2, s2, x);
 		}
 
 		data1 = get_data(m1, s1, x, 0, width);
@@ -292,7 +285,7 @@ function update_curves(m1, s1, m2, s2, x, y){
 		d3.selectAll(".curve2")
 			.datum(data2)
 			.attr("d", line);
-			
+
 		d3.selectAll(".curve1-filled")
 			.datum(data1)
 			.attr("d", fill);
@@ -321,16 +314,16 @@ function update_controls(m1, s1, m2, s2, x, y){
 //update the confustion matrix
 function update_rates(threshold, duration){
 	ms = get_means_and_sigmas()
-	
+
 	r = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold)
-	
+
 	d3.select("#tpr").html(format(r.tpr));
 	d3.select("#tnr").html(format(r.tnr));
 	d3.select("#fpr").html(format(r.fpr));
 	d3.select("#fnr").html(format(r.fnr));
-	
+
 	update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration);
-	
+
 	update_threshold_marker(r, duration);
 }
 
@@ -338,7 +331,7 @@ function update_rates(threshold, duration){
 function update_false_areas(x_scale, threshold, m1, s1, m2, s2, duration){
 	false_positive_data = get_data(m1, s1, x_scale, x(threshold), width);
 	false_negative_data = get_data(m2, s2, x_scale, 0, x(threshold));
-	
+
 
 		d3.selectAll(".false-positive-curve")
 			.datum(false_positive_data)
@@ -358,7 +351,7 @@ function update_false_areas(x_scale, threshold, m1, s1, m2, s2, duration){
 function update_x_axis(m1, s1, m2, s2, x){
 	x.domain(d3.extent([m1 - (z_limit * s1), m2 - (z_limit * s2), m1 + (z_limit * s1), m2 + (z_limit * s2)]));
 	roc_scale.domain(x.domain()); //update the roc scale, too
-	d3.selectAll(".x.axis").transition().call(xAxis);		
+	d3.selectAll(".x.axis").transition().call(xAxis);
 }
 
 //make the y axis min and max scale with the data
@@ -370,8 +363,8 @@ function update_y_axis(data, y){
 	d3.selectAll(".y.axis").transition().call(yAxis);
 }
 
-//given a mean, sigma, and an x scale, return a an array 
-//representing the y points of a normal distribution 
+//given a mean, sigma, and an x scale, return a an array
+//representing the y points of a normal distribution
 function get_data(mean, sigma, x, startx, endx){
 	data = []; //erase current data
 
@@ -386,7 +379,7 @@ function get_data(mean, sigma, x, startx, endx){
 		//console.log(el);
 	    data.push(el);
 	}
-	return data 	
+	return data
 }
 
 function get_rates(m1, s1, m2, s2, threshold){
@@ -445,10 +438,10 @@ function erf(x) {
 
 //////////////////////////// ROC ////////////////////////////////
 
-//function for creating lines with data in the form of q, p	
+//function for creating lines with data in the form of q, p
 function update_roc(){
 	data = get_roc_data();
-	
+
 	d3.selectAll(".roc-curve")
 		.datum(data)
 		.attr("d", roc_line);
@@ -475,20 +468,20 @@ function update_threshold_marker(rates, duration){
 		.attr("y2", rheight + rmargin.bottom)
 		// .duration(duration);
 
-	
+
 	d3.select("#threshold-marker")
 		.datum(threshold)
 		//.transition()
 		.attr("cx", rx(rates.fpr))
 		.attr("cy", ry(rates.tpr))
 		//.duration(duration);
-}	
-	
+}
+
 function get_roc_data(){
 	data = [];
 
 	ms = get_means_and_sigmas();
-	
+
 	for (i = 0; i < rwidth; i++){
 		threshold = roc_scale.invert(i);
 		rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold);
