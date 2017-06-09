@@ -162,6 +162,10 @@ d3.select("#axisscalecheck").on("change", function(){
 	update(x, y)
 });
 
+d3.select("#baseratebox").on("change", function(){
+	update(x, y)
+});
+
 //make threshold draggable
 d3.selectAll(".threshold-line")
 	.call(d3.drag()
@@ -186,8 +190,6 @@ function update_threshold(duration){
 		.attr("cx", x(threshold))
 		.attr("cy", height / 2)
 		.duration(duration);
-
-	update_rates(threshold, base_rate, duration);
 }
 
 //handle threshold drag event along x axis
@@ -205,17 +207,29 @@ function move_threshold(d) {
 
 	d3.select("#thresholdbox").attr("value", format(threshold));
 
-	update_rates(threshold, 0);
+  ms = get_means_and_sigmas();
+  rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate)
+  update_rates(rates);
+  update_threshold_marker(threshold, rates, 0);
+  update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, 0, base_rate);
 }
 
 //make the curve controls draggable
 var control_drag = d3.drag()
 	.on("drag", function(d) {
 		move_control(this, d)
-		ms = get_means_and_sigmas();
-		update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y);
-		update_threshold(0);
-		update_roc();
+    base_rate = Number(d3.select("#baseratebox").property("value"));
+    threshold = Number(d3.select("#thresholdbox").property("value"));
+    ms = get_means_and_sigmas();
+    if(means_and_sigmas_valid(ms) && base_rate != 0 && !isNaN(base_rate)){
+      rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate);
+      update_rates(rates);
+  		update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
+  		update_threshold(0);
+      update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, 0, base_rate);
+      update_threshold_marker(threshold, rates, 0);
+  		update_roc(base_rate);
+    }
 	})
   //subject should be just the x and y of the control instead of the datum's x and y
   .subject(function(){ return {x: d3.event.x, y: d3.event.y}})
@@ -235,20 +249,37 @@ function move_control(control, d){
 	//update the means
 	d3.select("#mean1box").attr("value", format(d3.select("#curve1control").datum().x));
 	d3.select("#mean2box").attr("value", format(d3.select("#curve2control").datum().x));
-	d3.select("#sigma1box").attr("value",
-		format(gaussian_sigma(d3.select("#curve1control").datum().y)));
-	d3.select("#sigma2box").attr("value",
-		format(gaussian_sigma(d3.select("#curve2control").datum().y)));
+
+  //update the base rate
+  ms = get_means_and_sigmas();
+
+  if(d3.select(control).attr("id") == "curve1control") {
+    //base rate is the current probability divided by apex of standard normal
+    //at the current standard deviation
+    base_rate = d.y / gaussian_pdf(0,0,ms.s1,1);
+    d3.select("#baseratebox").attr("value", format(1 - base_rate));
+  } else {
+    base_rate = d.y / gaussian_pdf(0,0,ms.s2,1);
+    d3.select("#baseratebox").attr("value", format(base_rate));
+  }
 }
 
 //update the curves, controls, and threshold
 function update(x, y){
 	ms = get_means_and_sigmas();
   base_rate = Number(d3.select("#baseratebox").property("value"));
-	update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
-	update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
-	update_threshold(250);
-	update_roc(base_rate);
+  threshold = Number(d3.select("#thresholdbox").property("value"));
+  duration = 250
+  if(means_and_sigmas_valid(ms) && base_rate != 0 && !isNaN(base_rate)){
+    rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate)
+    update_rates(rates);
+  	update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
+  	update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
+  	update_threshold(duration);
+    update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration, base_rate);
+    update_threshold_marker(threshold, rates, duration);
+  	update_roc(base_rate);
+  }
 }
 
 //get the means and sigmas from their input boxes
@@ -260,42 +291,44 @@ function get_means_and_sigmas(){
 		s2:Number(d3.select("#sigma2box").property("value")),
 	}
 }
+
+function means_and_sigmas_valid(ms){
+  return !isNaN(ms.m1)
+      && !isNaN(ms.m2)
+      && !isNaN(ms.s1)
+      && !isNaN(ms.s2)
+      && ms.s1 != 0
+      && ms.s2 != 0
+}
+
 //update the curves
 function update_curves(m1, s1, m2, s2, x, y, base_rate){
-
-	if(!isNaN(m1)
-			&& !isNaN(m2)
-			&& !isNaN(s1)
-			&& !isNaN(s2)
-			&& s1 != 0
-			&& s2 != 0){
-		if(d3.select("#axisscalecheck").property("checked")){
-			update_x_axis(m1, s1, m2, s2, x);
-		}
-
-		data1 = get_data(m1, s1, x, 0, width, 1 - base_rate);
-		data2 = get_data(m2, s2, x, 0, width, base_rate);
-
-		if(d3.select("#axisscalecheck").property("checked")){
-			update_y_axis(data1.concat(data2), y);
-		}
-
-		d3.selectAll(".curve1")
-			.datum(data1)
-			.attr("d", line);
-
-		d3.selectAll(".curve2")
-			.datum(data2)
-			.attr("d", line);
-
-		d3.selectAll(".curve1-filled")
-			.datum(data1)
-			.attr("d", fill);
-
-		d3.selectAll(".curve2-filled")
-			.datum(data2)
-			.attr("d", fill);
+	if(d3.select("#axisscalecheck").property("checked")){
+		update_x_axis(m1, s1, m2, s2, x);
 	}
+
+	data1 = get_data(m1, s1, x, 0, width, 1 - base_rate);
+	data2 = get_data(m2, s2, x, 0, width, base_rate);
+
+	if(d3.select("#axisscalecheck").property("checked")){
+		update_y_axis(data1.concat(data2), y);
+	}
+
+	d3.selectAll(".curve1")
+		.datum(data1)
+		.attr("d", line);
+
+	d3.selectAll(".curve2")
+		.datum(data2)
+		.attr("d", line);
+
+	d3.selectAll(".curve1-filled")
+		.datum(data1)
+		.attr("d", fill);
+
+	d3.selectAll(".curve2-filled")
+		.datum(data2)
+		.attr("d", fill);
 }
 
 //update the location of the controls
@@ -314,26 +347,17 @@ function update_controls(m1, s1, m2, s2, x, y, base_rate){
 }
 
 //update the confustion matrix
-function update_rates(threshold, base_rate, duration){
-	ms = get_means_and_sigmas()
-
-	r = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate)
-
+function update_rates(r){
 	d3.select("#tpr").html(format(r.tp));
 	d3.select("#tnr").html(format(r.tn));
 	d3.select("#fpr").html(format(r.fp));
 	d3.select("#fnr").html(format(r.fn));
-
-	update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration, base_rate);
-
-	update_threshold_marker(r, duration);
 }
 
 //update the areas that show the errors
 function update_false_areas(x_scale, threshold, m1, s1, m2, s2, duration, base_rate){
-	false_positive_data = get_data(m1, s1, x_scale, x(threshold), width, base_rate);
-	false_negative_data = get_data(m2, s2, x_scale, 0, x(threshold), 1 - base_rate);
-
+	false_positive_data = get_data(m1, s1, x_scale, x(threshold), width, 1 - base_rate);
+	false_negative_data = get_data(m2, s2, x_scale, 0, x(threshold), base_rate);
 
 		d3.selectAll(".false-positive-curve")
 			.datum(false_positive_data)
@@ -386,8 +410,8 @@ function get_data(mean, sigma, x, startx, endx, scale){
 }
 
 function get_rates(m1, s1, m2, s2, threshold, base_rate){
-	fn = gaussian_cdf(threshold, m2, s2, 1 - base_rate);
-	tn = gaussian_cdf(threshold, m1, s1, base_rate);
+	fn = gaussian_cdf(threshold, m2, s2, base_rate);
+	tn = gaussian_cdf(threshold, m1, s1, 1 - base_rate);
   tp = base_rate - fn;
   fp = 1 - base_rate - tn;
   n = fn + tn + tp + fp;
@@ -457,8 +481,7 @@ function update_roc(base_rate){
 }
 
 //update the threshold
-function update_threshold_marker(rates, duration){
-	threshold = Number(d3.select("#thresholdbox").property("value"));
+function update_threshold_marker(threshold, rates, duration){
 	d3.selectAll("#threshold-horiz")
 		.datum(threshold)
 		// .transition()
@@ -476,7 +499,6 @@ function update_threshold_marker(rates, duration){
 		.attr("x2", rx(rates.fpr))
 		.attr("y2", rheight + rmargin.bottom)
 		// .duration(duration);
-
 
 	d3.select("#threshold-marker")
 		.datum(threshold)
