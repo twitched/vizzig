@@ -92,6 +92,10 @@ label {
 	cursor: ew-resize;
 }
 
+#baseratecontrol {
+	cursor: ns-resize;
+}
+
 .border {
 	border: 1px solid;
 	padding: .5em;

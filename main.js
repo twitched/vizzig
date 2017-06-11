@@ -1,11 +1,11 @@
 //based on http://bl.ocks.org/phil-pedruco/88cb8a51cdce45f13c7e
 var margin = {
         top: 20,
-        right: 20,
+        right: 80,
         bottom: 60,
 		left: 80
     },
-width = 300 - margin.left - margin.right,
+width = 360 - margin.left - margin.right,
 height = 200 - margin.top - margin.bottom;
 
 //z score for determining width of graph
@@ -20,11 +20,18 @@ var x = d3.scaleLinear()
 var y = d3.scaleLinear()
     .range([height, 0]);
 
+var base_rate_scale = d3.scaleLinear()
+    .range([height, 0])
+    .clamp(true);
+
 var xAxis = d3.axisBottom()
     .scale(x);
 
 var yAxis = d3.axisLeft()
     .scale(y);
+
+var base_rate_axis = d3.axisRight()
+    .scale(base_rate_scale);
 
 d3.selectAll(".normalplot")
     .attr("width", width + margin.left + margin.right)
@@ -40,12 +47,19 @@ d3.selectAll(".x.axis")
 d3.selectAll(".y.axis")
     .call(yAxis);
 
+d3.selectAll(".base_rate.axis")
+   	.attr("transform", "translate(" + (width + 30) + ", 0)")
+   	.call(base_rate_axis);
+
 //position axis labels
 d3.selectAll(".normalplot-x-axis-label")
 	.attr("transform", "translate(" + (width / 2) + "," + (height + 50) + ")");
 
 d3.selectAll(".normalplot-y-axis-label")
 	.attr("transform","translate(" + -50 + "," + (height / 2) +")rotate(-90)");
+
+d3.selectAll(".base-rate-label")
+	.attr("transform","translate(" + (width + 60) + "," + (height / 2) +")rotate(90)");
 
 d3.selectAll(".control")
 	.attr("r", "5")
@@ -162,7 +176,7 @@ d3.select("#axisscalecheck").on("change", function(){
 	update(x, y)
 });
 
-d3.select("#baseratebox").on("change", function(){
+d3.select("#baseratebox").on("input", function(){
 	update(x, y)
 });
 
@@ -225,10 +239,13 @@ var control_drag = d3.drag()
       rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate);
       update_rates(rates);
   		update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
+      update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate, this);
   		update_threshold(0);
       update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, 0, base_rate);
       update_threshold_marker(threshold, rates, 0);
   		update_roc(base_rate);
+    } else {
+      console.log(ms);
     }
 	})
   //subject should be just the x and y of the control instead of the datum's x and y
@@ -247,22 +264,43 @@ function move_control(control, d){
 		.attr("cy", d3.event.y);
 
 	//update the means
-	d3.select("#mean1box").attr("value", format(d3.select("#curve1control").datum().x));
-	d3.select("#mean2box").attr("value", format(d3.select("#curve2control").datum().x));
+	d3.select("#mean1box").property("value", format(d3.select("#curve1control").datum().x));
+	d3.select("#mean2box").property("value", format(d3.select("#curve2control").datum().x));
 
-  //update the base rate
-  ms = get_means_and_sigmas();
-
-  if(d3.select(control).attr("id") == "curve1control") {
-    //base rate is the current probability divided by apex of standard normal
-    //at the current standard deviation
-    base_rate = d.y / gaussian_pdf(0,0,ms.s1,1);
-    d3.select("#baseratebox").attr("value", format(1 - base_rate));
-  } else {
-    base_rate = d.y / gaussian_pdf(0,0,ms.s2,1);
-    d3.select("#baseratebox").attr("value", format(base_rate));
-  }
+  base_rate = Number(d3.select("#baseratebox").property("value"));
+  d3.select("#sigma1box").property("value",
+		format(gaussian_sigma(d3.select("#curve1control").datum().y, base_rate)));
+	d3.select("#sigma2box").property("value",
+		format(gaussian_sigma(d3.select("#curve2control").datum().y, base_rate)));
 }
+
+var base_rate_drag = d3.drag()
+    .on("drag", function(d) {
+      base_rate = base_rate_scale.invert(d3.event.y);
+      if(!(base_rate <= 0) && !(base_rate >= 1)){
+        threshold = Number(d3.select("#thresholdbox").property("value"));
+        d3.select("#baseratebox").property("value", format(base_rate));
+
+        d3.select(this)
+          .attr("cy", d3.event.y);
+
+          ms = get_means_and_sigmas();
+          if(means_and_sigmas_valid(ms) && base_rate != 0 && !isNaN(base_rate)){
+            rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate);
+            update_rates(rates);
+        		update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
+            update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
+        		update_threshold(0);
+            update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, 0, base_rate);
+            update_threshold_marker(threshold, rates, 0);
+        		update_roc(base_rate);
+          }
+        }
+    })
+    .on("end", function() {update(x,y)});
+
+d3.select("#baseratecontrol")
+    .call(base_rate_drag);
 
 //update the curves, controls, and threshold
 function update(x, y){
@@ -275,10 +313,13 @@ function update(x, y){
     update_rates(rates);
   	update_curves(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
   	update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
+    update_base_rate_control(base_rate);
   	update_threshold(duration);
     update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration, base_rate);
     update_threshold_marker(threshold, rates, duration);
   	update_roc(base_rate);
+  } else {
+    console.log(ms)
   }
 }
 
@@ -332,18 +373,32 @@ function update_curves(m1, s1, m2, s2, x, y, base_rate){
 }
 
 //update the location of the controls
-function update_controls(m1, s1, m2, s2, x, y, base_rate){
-	control_y1 = gaussian_pdf(m1, m1, s1, 1 - base_rate);
-	d3.select("#curve1control")
-		.datum({x: m1, y: control_y1})
-		.attr("cx", x(m1))
-		.attr("cy", y(control_y1));
+function update_controls(m1, s1, m2, s2, x, y, base_rate, exclude_control){
+  id = null;
+  if(exclude_control != null){
+    id = d3.select(exclude_control).attr("id");
+  }
+  if(d3.select("#curve1control").attr("id") != id) {
+    control_y1 = gaussian_pdf(m1, m1, s1, 1 - base_rate);
+  	d3.select("#curve1control")
+  		.datum({x: m1, y: control_y1})
+  		.attr("cx", x(m1))
+  		.attr("cy", y(control_y1));
+  }
 
-	control_y2 = gaussian_pdf(m2, m2, s2, base_rate);
-	d3.select("#curve2control")
-		.datum({x: m2, y: control_y2})
-		.attr("cx", x(m2))
-		.attr("cy", y(control_y2));
+  if(d3.select("#curve2control").attr("id") != id) {
+  	control_y2 = gaussian_pdf(m2, m2, s2, base_rate);
+  	d3.select("#curve2control")
+  		.datum({x: m2, y: control_y2})
+  		.attr("cx", x(m2))
+  		.attr("cy", y(control_y2));
+  }
+}
+
+function update_base_rate_control(base_rate){
+  d3.select("#baseratecontrol")
+    .attr("cx", width + 30)
+    .attr("cy", base_rate_scale(base_rate));
 }
 
 //update the confustion matrix
@@ -437,7 +492,7 @@ function gaussian_pdf(x, mean, sigma, scale = 1) {
 
 //return sigma (standard deviation) given the probability at the mean
 function gaussian_sigma(p, scale = 1){
-	return 1 / ((p/scale) * Math.sqrt(2 * Math.PI))
+	return 1 / (p / (1 - scale) * Math.sqrt(2 * Math.PI))
 }
 
 //taken from Jason Davies science library
