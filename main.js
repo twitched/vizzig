@@ -258,7 +258,7 @@ d3.selectAll(".curvecontrol")
 //move the control
 function move_control(control, d){
 	d.x = x.invert(d3.event.x);
-	d.y = y.invert(d3.event.y)
+	d.y = y.invert(d3.event.y);
 	d3.select(control)
 		.attr("cx", d3.event.x)
 		.attr("cy", d3.event.y);
@@ -269,7 +269,7 @@ function move_control(control, d){
 
   base_rate = Number(d3.select("#baseratebox").property("value"));
   d3.select("#sigma1box").property("value",
-		format(gaussian_sigma(d3.select("#curve1control").datum().y, base_rate)));
+		format(gaussian_sigma(d3.select("#curve1control").datum().y, 1 - base_rate)));
 	d3.select("#sigma2box").property("value",
 		format(gaussian_sigma(d3.select("#curve2control").datum().y, base_rate)));
 }
@@ -492,7 +492,7 @@ function gaussian_pdf(x, mean, sigma, scale = 1) {
 
 //return sigma (standard deviation) given the probability at the mean
 function gaussian_sigma(p, scale = 1){
-	return 1 / (p / (1 - scale) * Math.sqrt(2 * Math.PI))
+  return 1 / (p / scale * Math.sqrt(2 * Math.PI))
 }
 
 //taken from Jason Davies science library
