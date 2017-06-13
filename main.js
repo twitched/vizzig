@@ -409,7 +409,9 @@ function update_rates(r){
   d3.select("#fn").html(format(r.fn));
   d3.select("#sensitivity").html(format(r.tpr));
   d3.select("#specificity").html(format(r.tnr));
+  d3.select("#fallout").html(format(r.fpr));
   d3.select("#precision").html(format(r.precision));
+  d3.select("#npv").html(format(r.npv));
   d3.select("#accuracy").html(format(r.accuracy));
   d3.select("#f1").html(format(r.f1));
   d3.select("#dprime").html(format(r.dprime));
@@ -486,6 +488,7 @@ function get_rates(m1, s1, m2, s2, threshold, base_rate){
     "tnr":tn / (fp + tn),
     "fpr":fp / (fp + tn),
     "precision": tp / (tp + fp),
+    "npv": tn / (tn + fn),
     "accuracy": (tp + tn) / n,
     "f1": 2 * tp / (2 * tp + fp + fn),
     "dprime": (m2 - m1) / Math.sqrt(0.5 * (s2 + s1))
