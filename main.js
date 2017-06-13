@@ -403,10 +403,10 @@ function update_base_rate_control(base_rate){
 
 //update the confustion matrix
 function update_rates(r){
-	d3.select("#tpr").html(format(r.tp));
-	d3.select("#tnr").html(format(r.tn));
-	d3.select("#fpr").html(format(r.fp));
-	d3.select("#fnr").html(format(r.fn));
+	d3.select("#tp").html(format(r.tp));
+	d3.select("#tn").html(format(r.tn));
+	d3.select("#fp").html(format(r.fp));
+	d3.select("#fn").html(format(r.fn));
 }
 
 //update the areas that show the errors
