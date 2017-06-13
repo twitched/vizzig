@@ -17,6 +17,26 @@ body {
   width: 30%;
 }
 
+#top {
+
+}
+
+#instructions {
+  float:left;
+  width:30%;
+}
+
+#parameters {
+  display: inline-block;
+  margin: 0 .25in;
+  width: 40%;
+}
+
+.inline-svg {
+  height: 1em;
+  width: 1em;
+}
+
 .axis path,
 .axis line {
     fill: none;

@@ -12,73 +12,85 @@
 </head>
 
 <body>
-
-<p class="input">
-	<table class="inputtable">
-    <tr class="tabletitle">
-      <td colspan="4">
-        Parameters
-      </td>
-    </tr>
-    <tr class="border">
-			<td colspan="2" class="border-left">
-			     noise
-      </td>
-      <td colspan="2" class="border-left">
-			     noise + signal
-      </td>
-    </tr>
-		<tr class="border">
-			<td class="border-left">
-			  <label class="input" for="mean1box">Mean: </label>
-      </td>
-			<td>
-			  <input class="input inputbox" type="text" id="mean1box" size="6" value="0"/>
-      </td>
-      <td class="border-left">
-			  <label class="input" for="mean2box">Mean: </label>
-      </td>
-			<td>
-			  <input class="input inputbox" type="text" id="mean2box" size="6" value="2"/>
-      </td>
-    </tr>
-    <tr class="border">
-			<td class="border-left">
-			  <label class="input" for="sigma1box">Standard dev:</label>
-      </td>
-			<td>
-			  <input class="input inputbox" type="text" id="sigma1box" size="6" value="1"/>
-			</td>
-			<td class="border-left">
-			  <label class="input" for="sigma2box">Standard dev:</label>
-      </td>
-			<td>
-			  <input class="input inputbox" type="text" id="sigma2box" size="6" value="1"/>
-			</td>
-	    </tr>
-  </table>
-  <table>
-    <tr class="border">
-      <td>
-			  <label class="input" for="thresholdbox">Threshold:</label>
-      </td>
-			<td>
-			  <input class="input inputbox" type="text" id="thresholdbox" size="6" value="1"/>
-      </td>
-      <td>
-			  <label class="input" for="baseratebox">Signal base rate:</label>
-      </td>
-			<td>
-			  <input class="input inputbox" type="text" id="baseratebox" size="6" value="0.5"/>
-      </td>
-		</tr>
-    <tr>
-      <td>
-        <input class="input inputbox" type="checkbox" id="axisscalecheck" value="lock" checked>Scale axes</input>
-      </td>
-    </tr>
-	</table>
-</p>
+<div id="top">
+  <h1 id="title">Signal Detection</h1>
+  <div id="instructions">
+    <p>
+        This is an interactive visualization of signal detection concepts as described by
+        <a href="https://books.google.com/books/about/Signal_detection_theory_and_psychophysic.html?id=Ykt9AAAAMAAJ">Green and Swets (1969)</a>
+        and used for classifier evaluation in machine learning.  You can manipulate the means, standard deviations, threshold, and base rate by
+        dragging the <svg class="inline-svg"><g><circle class="control" cx=".5em", cy=".5em"></circle></g></svg> markers. You can also enter values for each in the Parameters table.
+    </p>
+  </div>
+  <div id="parameters">
+    <p class="input">
+    	<table class="inputtable">
+        <tr class="tabletitle">
+          <td colspan="4">
+            Parameters
+          </td>
+        </tr>
+        <tr class="border">
+    			<td colspan="2" class="border-left">
+    			     noise
+          </td>
+          <td colspan="2" class="border-left">
+    			     noise + signal
+          </td>
+        </tr>
+    		<tr class="border">
+    			<td class="border-left">
+    			  <label class="input" for="mean1box">Mean: </label>
+          </td>
+    			<td>
+    			  <input class="input inputbox" type="text" id="mean1box" size="6" value="0"/>
+          </td>
+          <td class="border-left">
+    			  <label class="input" for="mean2box">Mean: </label>
+          </td>
+    			<td>
+    			  <input class="input inputbox" type="text" id="mean2box" size="6" value="2"/>
+          </td>
+        </tr>
+        <tr class="border">
+    			<td class="border-left">
+    			  <label class="input" for="sigma1box">Standard dev:</label>
+          </td>
+    			<td>
+    			  <input class="input inputbox" type="text" id="sigma1box" size="6" value="1"/>
+    			</td>
+    			<td class="border-left">
+    			  <label class="input" for="sigma2box">Standard dev:</label>
+          </td>
+    			<td>
+    			  <input class="input inputbox" type="text" id="sigma2box" size="6" value="1"/>
+    			</td>
+    	    </tr>
+      </table>
+      <table>
+        <tr class="border">
+          <td>
+    			  <label class="input" for="thresholdbox">Threshold:</label>
+          </td>
+    			<td>
+    			  <input class="input inputbox" type="text" id="thresholdbox" size="6" value="1"/>
+          </td>
+          <td>
+    			  <label class="input" for="baseratebox">Signal base rate:</label>
+          </td>
+    			<td>
+    			  <input class="input inputbox" type="text" id="baseratebox" size="6" value="0.5"/>
+          </td>
+    		</tr>
+        <tr>
+          <td>
+            <input class="input inputbox" type="checkbox" id="axisscalecheck" value="lock" checked>Scale axes</input>
+          </td>
+        </tr>
+    	</table>
+    </p>
+  </div>
+</div>
 <div id="col1">
 	<div class="graph normalplot" id="graph1">
 		<svg class="normalplot">
