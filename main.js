@@ -413,7 +413,6 @@ function update_rates(r){
   d3.select("#accuracy").html(format(r.accuracy));
   d3.select("#f1").html(format(r.f1));
   d3.select("#dprime").html(format(r.dprime));
-  d3.select("#posterior").html(format(r.posterior));
 }
 
 //update the areas that show the errors
@@ -477,22 +476,19 @@ function get_rates(m1, s1, m2, s2, threshold, base_rate){
   tp = base_rate - fn;
   fp = 1 - base_rate - tn;
   n = fn + tn + tp + fp;
-  tpr = tp / (fn + tp);
-  fpr = fp / (fp + tn);
 	return {
 		"fn":fn,
 		"tp":tp,
 		"tn":tn,
 		"fp":fp,
     "fnr":fn / (fn + tp),
-    "tpr":tpr,
+    "tpr":tp / (fn + tp),
     "tnr":tn / (fp + tn),
-    "fpr":fpr,
+    "fpr":fp / (fp + tn),
     "precision": tp / (tp + fp),
     "accuracy": (tp + tn) / n,
     "f1": 2 * tp / (2 * tp + fp + fn),
-    "dprime": (m2 - m1) / Math.sqrt(0.5 * (s2 + s1)),
-    "posterior": tpr * base_rate / (tpr * base_rate + fpr * (1 - base_rate))
+    "dprime": (m2 - m1) / Math.sqrt(0.5 * (s2 + s1))
 	}
 }
 

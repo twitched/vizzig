@@ -10,7 +10,6 @@ var accuracy = "\\frac{TP + TN}{TP + FP + FN + TN}";
 var f1 = "\\frac{2TP}{(2TP + FP + FN)}";
 var dprime = "\\frac{\\mu_S - \\mu_N}{\\sqrt{\\frac{1}{2}(\\sigma^2_S + \\sigma^2_N})}";
 var auc = "\\int_\\infty^{-\\infty} (TPR(T))(FPR'(T)))\\,\\mathrm{d}T";
-var posterior = "\\frac{TPR * BR}{TPR * BR + FPR * (1 - BR)}";
 
 var sensitivity_html = katex.renderToString(sensitivity, {displayMode: true});
 var specificity_html = katex.renderToString(specificity, {displayMode: true});
@@ -19,7 +18,6 @@ var accuracy_html = katex.renderToString(accuracy, {displayMode: true});
 var f1_html = katex.renderToString(f1, {displayMode: true});
 var dprime_html = katex.renderToString(dprime, {displayMode: true});
 var auc_html = katex.renderToString(auc, {displayMode: true});
-var posterior_html = katex.renderToString(posterior, {displayMode: true});
 
 console.log("Sensitivity\n");
 console.log(sensitivity_html);
@@ -47,8 +45,4 @@ console.log("\n\n");
 
 console.log("AUC\n");
 console.log(auc_html);
-console.log("\n\n");
-
-console.log("Posterior\n");
-console.log(posterior_html);
 console.log("\n\n");
