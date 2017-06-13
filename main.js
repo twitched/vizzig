@@ -539,8 +539,10 @@ function update_roc(base_rate){
 	data = get_roc_data(base_rate);
 
 	d3.selectAll(".roc-curve")
-		.datum(data)
+		.datum(data.points)
 		.attr("d", roc_line);
+
+  d3.select("#auc").html(format(data.AUC));
 }
 
 //update the threshold
@@ -571,11 +573,15 @@ function update_threshold_marker(threshold, rates, duration){
 		//.duration(duration);
 }
 
+//return AUC points for ROC curve
 function get_roc_data(base_rate){
 	data = [];
+  auc = 0;
 
 	ms = get_means_and_sigmas();
 
+  priortpr = 0
+  priorfpr = 0;
 	for (i = 0; i < rwidth; i++){
 		threshold = roc_scale.invert(i);
 		rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate);
@@ -584,6 +590,10 @@ function get_roc_data(base_rate){
 	        "fpr": rates.fpr
 	    }
 	    data.push(el);
+      auc = auc + (rates.tpr + priortpr) * -(rates.fpr - priorfpr);
+      priortpr = rates.tpr;
+      priorfpr = rates.fpr;
+      console.log("tpr:" + rates.tpr  + " fpr:" + rates.fpr + " auc:" + auc);
 	}
-	return data;
+	return {"AUC": auc, "points": data};
 }
