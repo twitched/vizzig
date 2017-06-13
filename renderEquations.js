@@ -9,7 +9,7 @@ var precision = "\\frac{TP}{TP + FP}";
 var accuracy = "\\frac{TP + TN}{TP + FP + FN + TN}";
 var f1 = "\\frac{2TP}{(2TP + FP + FN)}";
 var dprime = "\\frac{\\mu_S - \\mu_N}{\\sqrt{\\frac{1}{2}(\\sigma^2_S + \\sigma^2_N})}";
-var auc = "\\int_\\infty^\\infty (TPR(T))(-(1 - TNR (T)))\\,\\mathrm{d}T";
+var auc = "\\int_\\infty^{-\\infty} (TPR(T))(FPR'(T)))\\,\\mathrm{d}T";
 var posterior = "\\frac{P(D \\mid S)P(S)}{P(D \\mid S)P(S) + P(D \\mid !S)P(!S)}";
 
 var sensitivity_html = katex.renderToString(sensitivity, {displayMode: true});
