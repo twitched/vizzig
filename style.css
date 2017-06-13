@@ -146,3 +146,12 @@ label {
 	stroke: purple;
 	stroke-width: 2px;
 }
+
+.equationstable {
+  border-collapse: collapse;
+}
+
+span.katex-display {
+  margin-top: auto;
+  margin-bottom: auto;
+}
