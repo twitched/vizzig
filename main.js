@@ -412,6 +412,7 @@ function update_rates(r){
   d3.select("#precision").html(format(r.precision));
   d3.select("#accuracy").html(format(r.accuracy));
   d3.select("#f1").html(format(r.f1));
+  d3.select("#dprime").html(format(r.dprime));
 }
 
 //update the areas that show the errors
@@ -486,7 +487,8 @@ function get_rates(m1, s1, m2, s2, threshold, base_rate){
     "fpr":fp / (fp + tn),
     "precision": tp / (tp + fp),
     "accuracy": (tp + tn) / n,
-    "f1": 2 * tp / (2 * tp + fp + fn)
+    "f1": 2 * tp / (2 * tp + fp + fn),
+    "dprime": (m2 - m1) / Math.sqrt(0.5 * (s2 + s1))
 	}
 }
 
@@ -593,7 +595,6 @@ function get_roc_data(base_rate){
       auc = auc + (rates.tpr + priortpr) * -(rates.fpr - priorfpr);
       priortpr = rates.tpr;
       priorfpr = rates.fpr;
-      console.log("tpr:" + rates.tpr  + " fpr:" + rates.fpr + " auc:" + auc);
 	}
 	return {"AUC": auc, "points": data};
 }
