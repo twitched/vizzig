@@ -286,13 +286,13 @@
   </div>
 </div>
 <div id="col3">
-	<div class="graph roc" id="roc">
+	<div class="graph roc output-graph" id="roc">
     <p class="tabletitle">ROC Curve</p>
 		<svg class="roc roc-svg">
 			<g class="roc roc-container">
 				<line class="line roc-diagonal"></line>
 				<path class="line roc-curve"></path>
-				<circle id="threshold-marker" class="threshold"></circle>
+				<circle id="roc-threshold-marker" class="threshold threshold-marker"></circle>
 				<line id="threshold-horiz" class="line threshold threshold-marker-line tp"></line>
 				<line id="threshold-vert" class="line threshold threshold-marker-line fp"></line>
 				<g class="roc roc-x-axis axis"></g>
@@ -304,6 +304,23 @@
 			</g>
 		</svg>
 	</div>
+  <div class="graph pr output-graph" id="pr">
+    <p class="tabletitle">Precision-Recall Curve</p>
+    <svg class="pr roc-svg">
+      <g class="pr roc-container">
+        <path class="line pr-curve"></path>
+        <circle id="pr-threshold-marker" class="threshold threshold-marker"></circle>
+        <line id="pr-threshold-horiz" class="line threshold threshold-marker-line tp"></line>
+        <line id="pr-threshold-vert" class="line threshold threshold-marker-line precision"></line>
+        <g class="pr roc-x-axis axis"></g>
+        <g class="pr roc-y-axis axis"></g>
+        <g class="pr roc-top-axis axis"></g>
+        <g class="pr roc-right-axis axis"></g>
+        <text class="roc-x-axis-label" text-anchor="middle">Precision</text>
+        <text class="roc-y-axis-label" text-anchor="middle">Recall (True Positive Rate)</text>
+      </g>
+    </svg>
+  </div>
 </div>
 <script type="text/javascript" src="main.js"></script>
 </body>
