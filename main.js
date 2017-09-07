@@ -489,7 +489,7 @@ function get_rates(m1, s1, m2, s2, threshold, base_rate){
     "npv": tn / (tn + fn),
     "accuracy": (tp + tn) / n,
     "f1": 2 * tp / (2 * tp + fp + fn),
-    "dprime": (m2 - m1) / Math.sqrt(0.5 * (s2 + s1))
+    "dprime": (m2 - m1) / Math.sqrt(0.5 * (s2 * s2 + s1 * s2))
 	}
 }
 
