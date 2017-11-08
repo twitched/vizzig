@@ -144,7 +144,7 @@ label {
   margin: 0 auto;
 }
 
-.output-graph {
+#roc {
   align-content: right;
 }
 
@@ -154,7 +154,7 @@ label {
 	stroke: black;
 }
 
-.roc-curve,.pr-curve {
+.roc-curve {
     fill: none;
     stroke-width: 2px;
 	stroke: purple;
@@ -172,8 +172,7 @@ label {
 .threshold-marker-line.tp {
 	stroke: #F56991;
 }
-
-.threshold-marker {
+#threshold-marker {
 	fill: white;
 	stroke: purple;
 	stroke-width: 2px;

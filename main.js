@@ -64,7 +64,7 @@ d3.selectAll(".base-rate-label")
 d3.selectAll(".control")
 	.attr("r", "5")
 
-d3.select(".threshold-marker")
+d3.select("#threshold-marker")
 	.attr("r", "5")
 
 var rmargin = {
@@ -157,6 +157,14 @@ var fill = d3.area()
  		return y(0);
     });
 
+var roc_line = d3.line()
+    .x(function(d) {
+        return rx(d.fpr);
+    })
+    .y(function(d) {
+		return ry(d.tpr);
+    });
+
 update(x, y);
 
 //attach event
@@ -216,7 +224,7 @@ function move_threshold(d) {
   ms = get_means_and_sigmas();
   rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate)
   update_rates(rates);
-  update_roc_threshold_marker(threshold, rates, 0);
+  update_threshold_marker(threshold, rates, 0);
   update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, 0, base_rate);
 }
 
@@ -234,10 +242,8 @@ var control_drag = d3.drag()
       update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate, this);
   		update_threshold(0);
       update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, 0, base_rate);
-      update_roc_threshold_marker(threshold, rates, 0);
-      roc_data = get_roc_data(base_rate);
-  		update_roc(roc_data);
-      update_pr(roc_data);
+      update_threshold_marker(threshold, rates, 0);
+  		update_roc(base_rate);
     } else {
       console.log(ms);
     }
@@ -286,10 +292,8 @@ var base_rate_drag = d3.drag()
             update_controls(ms.m1, ms.s1, ms.m2, ms.s2, x, y, base_rate);
         		update_threshold(0);
             update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, 0, base_rate);
-            update_roc_threshold_marker(threshold, rates, 0);
-            roc_data = get_roc_data(base_rate);
-        		update_roc(roc_data);
-            update_pr(roc_data);
+            update_threshold_marker(threshold, rates, 0);
+        		update_roc(base_rate);
           }
         }
     })
@@ -312,10 +316,8 @@ function update(x, y){
     update_base_rate_control(base_rate);
   	update_threshold(duration);
     update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration, base_rate);
-    update_roc_threshold_marker(threshold, rates, duration);
-    roc_data = get_roc_data(base_rate);
-    update_roc(roc_data);
-    update_pr(roc_data);
+    update_threshold_marker(threshold, rates, duration);
+  	update_roc(base_rate);
   } else {
     console.log(ms)
   }
@@ -538,89 +540,42 @@ function erf(x) {
 
 //////////////////////////// ROC ////////////////////////////////
 
-function update_roc(data){
+function update_roc(base_rate){
+	data = get_roc_data(base_rate);
+
 	d3.selectAll(".roc-curve")
 		.datum(data.points)
-		.attr("d", d3.line()
-       .x(function(d) {
-           return rx(d.fpr);
-       })
-       .y(function(d) {
-       return ry(d.tpr);
-     })
-   );
+		.attr("d", roc_line);
 
   d3.select("#auc").html(format(data.AUC));
 }
 
-//update the precision-recall curve
-function update_pr(data) {
-  d3.selectAll(".pr-curve")
-    .datum(data.points)
-    .attr("d", d3.line()
-        .x(function(d) {
-            return rx(d.precision);
-        })
-        .y(function(d) {
-        return ry(d.tpr);
-        })
-    );
-}
-
 //update the threshold
-function update_roc_threshold_marker(threshold, rates, duration){
+function update_threshold_marker(threshold, rates, duration){
 	d3.selectAll("#threshold-horiz")
 		.datum(threshold)
-		.transition()
+		// .transition()
 		.attr("x1", 0 - margin.left)
 		.attr("y1", ry(rates.tpr))
 		.attr("x2", rwidth + rmargin.right)
 		.attr("y2", ry(rates.tpr))
-		.duration(duration);
+		// .duration(duration);
 
 	d3.selectAll("#threshold-vert")
 		.datum(threshold)
-		.transition()
+		// .transition()
 		.attr("x1", rx(rates.fpr))
 		.attr("y1", 0 - rmargin.top)
 		.attr("x2", rx(rates.fpr))
 		.attr("y2", rheight + rmargin.bottom)
-		.duration(duration);
+		// .duration(duration);
 
-	d3.select("#roc-threshold-marker")
+	d3.select("#threshold-marker")
 		.datum(threshold)
-		.transition()
+		//.transition()
 		.attr("cx", rx(rates.fpr))
 		.attr("cy", ry(rates.tpr))
-		.duration(duration);
-}
-
-//update the precision-recall threshold
-function update_pr_threshold_marker(threshold, rates, duration){
-	d3.selectAll("#pr-threshold-horiz")
-		.datum(threshold)
-		.transition()
-		.attr("x1", 0 - margin.left)
-		.attr("y1", ry(rates.tpr))
-		.attr("x2", rwidth + rmargin.right)
-		.attr("y2", ry(rates.tpr))
-		.duration(duration);
-
-	d3.selectAll("#pr-threshold-vert")
-		.datum(threshold)
-		.transition()
-		.attr("x1", rx(rates.precision))
-		.attr("y1", 0 - rmargin.top)
-		.attr("x2", rx(rates.precision))
-		.attr("y2", rheight + rmargin.bottom)
-		.duration(duration);
-
-	d3.select("#pr-threshold-marker")
-		.datum(threshold)
-		.transition()
-		.attr("cx", rx(rates.precision))
-		.attr("cy", ry(rates.tpr))
-		.duration(duration);
+		//.duration(duration);
 }
 
 //return AUC points for ROC curve
@@ -637,8 +592,7 @@ function get_roc_data(base_rate){
 		rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate);
 	    el = {
 	        "tpr": rates.tpr,
-	        "fpr": rates.fpr,
-          "precision" : rates.precision
+	        "fpr": rates.fpr
 	    }
 	    data.push(el);
       auc = auc + (rates.tpr + priortpr) * -(rates.fpr - priorfpr);
