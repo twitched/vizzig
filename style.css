@@ -109,6 +109,10 @@ label {
 	stroke: purple;
 }
 
+.optimal {
+	stroke: red;
+}
+
 .control {
 	fill: white;
 	stroke: #000;
@@ -172,9 +176,16 @@ label {
 .threshold-marker-line.tp {
 	stroke: #F56991;
 }
+
 #threshold-marker {
 	fill: white;
 	stroke: purple;
+	stroke-width: 2px;
+}
+
+#optimal-marker {
+	fill: white;
+	stroke: red;
 	stroke-width: 2px;
 }
 

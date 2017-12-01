@@ -67,6 +67,9 @@ d3.selectAll(".control")
 d3.select("#threshold-marker")
 	.attr("r", "5")
 
+d3.select("#optimal-marker")
+  .attr("r", "5")
+
 var rmargin = {
         top: 20,
         right: 20,
@@ -243,7 +246,9 @@ var control_drag = d3.drag()
   		update_threshold(0);
       update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, 0, base_rate);
       update_threshold_marker(threshold, rates, 0);
-  		update_roc(base_rate);
+      roc_data = get_roc_data(base_rate)
+    	update_roc(roc_data);
+      update_optimal_marker(roc_data)
     } else {
       console.log(ms);
     }
@@ -293,7 +298,9 @@ var base_rate_drag = d3.drag()
         		update_threshold(0);
             update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, 0, base_rate);
             update_threshold_marker(threshold, rates, 0);
-        		update_roc(base_rate);
+            roc_data = get_roc_data(base_rate)
+          	update_roc(roc_data);
+            update_optimal_marker(roc_data)
           }
         }
     })
@@ -317,7 +324,9 @@ function update(x, y){
   	update_threshold(duration);
     update_false_areas(x, threshold, ms.m1, ms.s1, ms.m2, ms.s2, duration, base_rate);
     update_threshold_marker(threshold, rates, duration);
-  	update_roc(base_rate);
+    roc_data = get_roc_data(base_rate)
+  	update_roc(roc_data);
+    update_optimal_marker(roc_data)
   } else {
     console.log(ms)
   }
@@ -540,14 +549,13 @@ function erf(x) {
 
 //////////////////////////// ROC ////////////////////////////////
 
-function update_roc(base_rate){
-	data = get_roc_data(base_rate);
+function update_roc(roc_data){
 
 	d3.selectAll(".roc-curve")
-		.datum(data.points)
+		.datum(roc_data.points)
 		.attr("d", roc_line);
 
-  d3.select("#auc").html(format(data.AUC));
+  d3.select("#auc").html(format(roc_data.AUC));
 }
 
 //update the threshold
@@ -578,6 +586,25 @@ function update_threshold_marker(threshold, rates, duration){
 		//.duration(duration);
 }
 
+//update the threshold
+function update_optimal_marker(roc_data){
+	d3.selectAll("#optimal-horiz")
+		.attr("x1", 0 - margin.left)
+		.attr("y1", ry(roc_data.optimaltpr))
+		.attr("x2", rwidth + rmargin.right)
+		.attr("y2", ry(roc_data.optimaltpr))
+
+	d3.selectAll("#optimal-vert")
+		.attr("x1", rx(roc_data.optimalfpr))
+		.attr("y1", 0 - rmargin.top)
+		.attr("x2", rx(roc_data.optimalfpr))
+		.attr("y2", rheight + rmargin.bottom)
+
+	d3.select("#optimal-marker")
+		.attr("cx", rx(roc_data.optimalfpr))
+		.attr("cy", ry(roc_data.optimaltpr))
+}
+
 //return AUC points for ROC curve
 function get_roc_data(base_rate){
 	data = [];
@@ -585,8 +612,12 @@ function get_roc_data(base_rate){
 
 	ms = get_means_and_sigmas();
 
-  priortpr = 0
+  priortpr = 0;
   priorfpr = 0;
+  optimalfpr = 0;
+  optimaltpr = 0;
+  optimalslope = get_roc_slope(optimaltpr, optimalfpr, base_rate)
+  optimalthreshold = 0;
 	for (i = 0; i < rwidth; i++){
 		threshold = roc_scale.invert(i);
 		rates = get_rates(ms.m1, ms.s1, ms.m2, ms.s2, threshold, base_rate);
@@ -594,10 +625,22 @@ function get_roc_data(base_rate){
 	        "tpr": rates.tpr,
 	        "fpr": rates.fpr
 	    }
-	    data.push(el);
+      data.push(el);
       auc = auc + (rates.tpr + priortpr) * -(rates.fpr - priorfpr);
       priortpr = rates.tpr;
       priorfpr = rates.fpr;
+      //the first time slope is less than tpr/fpr is the optimal slope
+
+      if(get_roc_slope(rates.tpr, rates.fpr, base_rate) > optimalslope){
+        optimalslope = get_roc_slope(optimaltpr, optimalfpr, base_rate);
+        optimaltpr = rates.tpr;
+        optimalfpr = rates.fpr;
+        optimalthreshold = threshold;
+      }
 	}
-	return {"AUC": auc, "points": data};
+	return {"AUC": auc, "points": data, "optimaltpr": optimaltpr, "optimalfpr": optimalfpr, "optimalthreshold": threshold};
+}
+
+function get_roc_slope(tpr, fpr, base_rate = 0.5, cost_ratio = 1){
+  return tpr - (1 - base_rate)/base_rate * cost_ratio * fpr;
 }
