@@ -613,7 +613,7 @@ function get_roc_data(base_rate){
 	ms = get_means_and_sigmas();
 
   priortpr = 0;
-  priorfpr = 0;
+  priorfpr = 1;
   optimalfpr = 0;
   optimaltpr = 0;
   optimalslope = get_roc_slope(optimaltpr, optimalfpr, base_rate)
@@ -626,7 +626,7 @@ function get_roc_data(base_rate){
 	        "fpr": rates.fpr
 	    }
       data.push(el);
-      auc = auc + (rates.tpr + priortpr) * -(rates.fpr - priorfpr);
+      auc = auc + ((rates.tpr) * (priorfpr - rates.fpr)) + .5 * ((priortpr - rates.tpr) * (priorfpr - rates.fpr));
       priortpr = rates.tpr;
       priorfpr = rates.fpr;
       //the first time slope is less than tpr/fpr is the optimal slope
